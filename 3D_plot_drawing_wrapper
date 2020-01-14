@@ -1,0 +1,41 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% RUN motion3D_1_wrapper.m, not motion3D_1.m
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+classdef motion3D_1_wrapper
+
+properties
+    speedButtonText;
+end    
+    
+methods
+
+    function this = motion3D_1_wrapper()
+        fh = figure();
+        hax = axes();
+        % Create buttons
+        pauseButton = uicontrol('Parent',fh,'Style', 'pushbutton', 'String', 'Pause/Play','Position', [20 10 80 20],'Callback', {@this.togglePause,hax}); 
+        global speedButtonText drawingSpeed;
+        minSpeed=0.1; maxSpeed = 10;
+        speedButton = uicontrol('Parent',fh,'Style', 'slider','Position', [120 5 100 20], ...
+            'Min',minSpeed,'Max',maxSpeed,'SliderStep',[0.1,1]/(maxSpeed-minSpeed),'Value',1,'Callback', {@this.changeSpeed,hax}); 
+        speedButtonText = uicontrol('Parent',fh,'Style','text','Position', [120 35 100 10],'String',['Speed = ',num2str(drawingSpeed)]);
+        motion3D_1();
+    end
+    
+    function togglePause(this,hObj,event,ax)
+        global isPause;
+        isPause = ~isPause;
+    end
+    
+    function changeSpeed(this,hObj,event,ax)
+       global speedButtonText drawingSpeed;
+       drawingSpeed = get(hObj,'Value');
+       speedButtonText.String = ['Speed = ',num2str(drawingSpeed)];
+    end
+
+end
+end
