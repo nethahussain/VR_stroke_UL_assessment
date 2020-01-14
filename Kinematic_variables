@@ -1,0 +1,617 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% -BRIEF DESCRIPTION: Calculation of kinematic variables
+%   
+%
+%%%% -DETAILED DESCRIPTION:To fetch data from kinematic data of the haptic device and calculate kinematic variables from them. Kinematic
+%%%% data of both individuals with stroke and healthy controls are calculated.
+%
+%
+%%%% -OPTIONS:
+%
+%%%% -EXAMPLES:
+%       1. modifyPatients_Paper1('Results/20161119_patients.mat')
+%       2. modifyPatients_Paper1()                                  %% Default input-filename would be taken
+%
+%%%% -NOTES:
+%       1. To distinguish between stroke and healthy controls Stroke population : The first time when FM value is greater than or equal to 31.
+%           Moderate stroke = 31 to 57, Ideally 32 should be the lower
+%           limit, but with inputated values, 31 is the FM for patient 101.
+%           Mild stroke = 58 to 66
+%           Whole group = Mild group + Moderate group
+%           Note : Patient no 181 on d3 performed kinematics with affected arm, but was tired to do it with unaffected arm. In this code,-
+%               only those sessions where patients performed kinematics with both arms are included.
+%       2. eg: if inputfilename = 'Results/20161119_patients.mat', then output filename = 'Results/20161119_patients_modifiedPaper1.mat'
+%       3. Data will be available on reasonable request from the principal supervisor. Published work related to this code: 
+%           https://www.frontiersin.org/articles/10.3389/fneur.2018.00300/full
+% 
+%%%%  -ASSUMPTIONS
+%       1. Max value of 'oxford' is 12 while computing FMdescription.oxford.histcounts.
+%
+%
+%%%% -NOTES (Programming):
+%       1. 
+%
+%%%% -WARNINGS (Programming):
+%       1.  
+%
+%%%% -OBSERVATIONS
+%       1. Died post stroke =
+%       102,116,127,133,156,157,165,169,183,187,194,206. Out of which only
+%       165 performed VR before death.
+%       2. 165 has FMtotal = 66 at D10. On D3, his FMtotal was 62, but he
+%       did not perform the VR task. Noone else included in this paper has
+%       FMtotal=66.
+%       3. For 101, the FMtotal is imputated value. Hence, FM subscores are
+%       not available. Hence, n = 67 in FMCategories of shoulder, wrist,
+%       hand and coordination. 
+%
+%%%% -EXECUTION
+%       1.
+%
+%
+%%%% -TODO:
+%       
+%      
+%       
+%
+%%%% -LOG
+%       1.
+%
+%%%% -Versions
+% 
+%
+%%%% -Author
+%   Netha Hussain <netha.hussain@gu.se>. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+function modifyPatients_Paper1(inputFilename)
+
+%% Please provide default input filename
+if(gf.isempty('inputFilename'))
+    inputFilename = 'Results/20170514_patients.mat';
+end
+
+load(inputFilename);
+
+
+%%Removing patients who did not have a diagnosis of stroke (118, 175) or
+%%had a second stroke (116)
+patients{118} = [];
+patients{175} = [];
+patients{166} = [];
+
+%%Renaming ARAT subscores for uniformity
+for i = 1:numel(patients)
+    if(~gf.isempty('patients{i}.sessions{4}.salgot.ARATprec')),
+  patients{i}.sessions{4}.salgot.ARATpreci = patients{i}.sessions{4}.salgot.ARATprec;
+  patients{i}.sessions{4}.salgot = rmfield(patients{i}.sessions{4}.salgot, 'ARATprec');
+    end
+    if(~gf.isempty('patients{i}.sessions{4}.salgot.ARATgrepp')),
+  patients{i}.sessions{5}.salgot.ARATkraft = patients{i}.sessions{5}.salgot.ARATgrepp;
+  patients{i}.sessions{5}.salgot = rmfield(patients{i}.sessions{5}.salgot,'ARATgrepp');
+    end
+end
+
+
+%%Patients 126 and 225 have decreasing Fugl Meyer values, the lowest Fugl
+%%Meyer value being recorded not on the first time they performed VR. Use
+%%session 1 for 126 and session 2 for 225.
+%%For all other participants, the lowest Fugl Meyer score is obtained at
+%%the session they first performed kinematics. (Verified manually)
+patients{126}.sessions{2} = [];
+patients{126}.sessions{3} = [];
+patients{126}.sessions{4} = [];
+patients{126}.sessions{5} = []; %%Sessions 6,7 and 8 are empty (99) for ID 126.
+patients{225}.sessions{3} = [];
+patients{225}.sessions{4} = [];%%Sessions 5,6 and 7 are empty(99).
+
+
+%% D10 FM value correction per Hanna's imputation method
+patients{1,101}.sessions{1,2}.salgot.FMtotal = 31;
+patients{1,102}.sessions{1,2}.salgot.FMtotal = 0;
+patients{1,103}.sessions{1,2}.salgot.FMtotal = 50;
+patients{1,104}.sessions{1,2}.salgot.FMtotal = 64;
+patients{1,105}.sessions{1,2}.salgot.FMtotal = 4;
+patients{1,106}.sessions{1,2}.salgot.FMtotal = 65;
+patients{1,107}.sessions{1,2}.salgot.FMtotal = 8;
+patients{1,108}.sessions{1,2}.salgot.FMtotal = 65;
+patients{1,109}.sessions{1,2}.salgot.FMtotal = 66;
+patients{1,110}.sessions{1,2}.salgot.FMtotal = 4;
+patients{1,111}.sessions{1,2}.salgot.FMtotal = 18;
+patients{1,112}.sessions{1,2}.salgot.FMtotal = 25;
+patients{1,113}.sessions{1,2}.salgot.FMtotal = 16;
+patients{1,114}.sessions{1,2}.salgot.FMtotal = 65;
+patients{1,115}.sessions{1,2}.salgot.FMtotal = 5;
+patients{1,116}.sessions{1,2}.salgot.FMtotal = 5;
+patients{1,117}.sessions{1,2}.salgot.FMtotal = 46;
+patients{1,118}.sessions{1,2}.salgot.FMtotal = 99;
+patients{1,119}.sessions{1,2}.salgot.FMtotal = 18;
+patients{1,120}.sessions{1,2}.salgot.FMtotal = 63;
+patients{1,121}.sessions{1,2}.salgot.FMtotal = 0;
+patients{1,122}.sessions{1,2}.salgot.FMtotal = 64;
+patients{1,123}.sessions{1,2}.salgot.FMtotal = 8;
+patients{1,124}.sessions{1,2}.salgot.FMtotal = 59;
+patients{1,125}.sessions{1,2}.salgot.FMtotal = 66;
+patients{1,126}.sessions{1,2}.salgot.FMtotal = 59;
+patients{1,127}.sessions{1,2}.salgot.FMtotal = 21;
+patients{1,128}.sessions{1,2}.salgot.FMtotal = 62;
+patients{1,129}.sessions{1,2}.salgot.FMtotal = 61;
+
+%%Changing FM value patient 217 who had Fugl Meyer recorded as 66 at day3,
+%%but scored 64 on subsequent assessment (Per discussion with
+%%Margit, 28 Feb 2017). 
+
+patients{217}.sessions{1,1}.salgot.FMtotal = 64;
+
+%%To add imputated values of subscores of Fugl Meyer for patients
+%%101. Since FM for D10 = 26+5 = 31 for patientID 101, subscores are not
+%%calculated. nanmean is used to calculate mean.
+
+
+patients{1,101}.sessions{1,2}.salgot.FMovre = NaN;
+patients{1,101}.sessions{1,2}.salgot.FMhand = NaN;
+patients{1,101}.sessions{1,2}.salgot.FMfingrar = NaN;
+patients{1,101}.sessions{1,2}.salgot.FMkoord = NaN;
+
+
+%%Patient 108, FM = 65 for D10 from subsequent value. Subscores also copied
+%%from subsequent value. sensation, jointROM and pain are not missing
+
+
+patients{1,108}.sessions{1,2}.salgot.FMovre = patients{1,108}.sessions{1,4}.salgot.FMovre;
+patients{1,108}.sessions{1,2}.salgot.FMhand = patients{1,108}.sessions{1,4}.salgot.FMhand;
+patients{1,108}.sessions{1,2}.salgot.FMfingrar = patients{1,108}.sessions{1,4}.salgot.FMfingrar; 
+patients{1,108}.sessions{1,2}.salgot.FMkoord = patients{1,108}.sessions{1,4}.salgot.FMkoord; 
+
+
+%%Patient 109, FM=66 for D10 from subsequent value. Subscores also copied
+%%from subsequent value. sensation, jointROM and pain are not missing
+
+patients{1,109}.sessions{1,2}.salgot.FMovre = patients{1,109}.sessions{1,4}.salgot.FMovre;
+patients{1,109}.sessions{1,2}.salgot.FMhand = patients{1,109}.sessions{1,4}.salgot.FMhand;
+patients{1,109}.sessions{1,2}.salgot.FMfingrar = patients{1,109}.sessions{1,4}.salgot.FMfingrar; 
+patients{1,109}.sessions{1,2}.salgot.FMkoord = patients{1,109}.sessions{1,4}.salgot.FMkoord;
+
+
+%%Patient 129, FM=61 for D10 from subsequent value. Subscores also copied
+%%from subsequent value. sensation, jointROM and pain are not missing
+
+patients{1,129}.sessions{1,2}.salgot.FMovre = patients{1,129}.sessions{1,3}.salgot.FMovre;
+patients{1,129}.sessions{1,2}.salgot.FMhand = patients{1,129}.sessions{1,3}.salgot.FMhand;
+patients{1,129}.sessions{1,2}.salgot.FMfingrar = patients{1,129}.sessions{1,3}.salgot.FMfingrar; 
+patients{1,129}.sessions{1,2}.salgot.FMkoord = patients{1,129}.sessions{1,3}.salgot.FMkoord;
+
+%%Healthy participants with dominant left arm. In this study, only the non
+%%dominent side of healthy is compared with stroke (ID 529). Switch right
+%%and left sides to have only non-dominant hand under NonAffectedUE.
+
+temp529 = gf.congregate('patients{529}.sessions{9}.UE{1}');
+gf.congregate('patients{529}.sessions{9}.UE{1}') = patients{529}.sessions{9}.UE{2};
+patients{529}.sessions{9}.UE{2} = temp529;
+
+
+patientsMeta.healthy.trajectoryPerSegmentMean = computeTrajectoryMeanOfHealthy(patients);
+
+patients = upperBoundAcceleration(patients);
+patients = calculateKinematicsVariables(patients,patientsMeta);
+
+patientsMeta.FM = createFM(patients);
+
+
+% -Saving output to a file ()
+outputFilename = regexprep(inputFilename,'.mat$','_modifiedPaper1.mat');
+save(outputFilename,'patients','patientsMeta');
+
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% - SUPPORTING FUNCTIONS - %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+function FM = createFM(patients)
+
+    participantsPatients = [101:225]';
+    participantsHealthyYouth = [502,504,521,545]'; %%501 and 502 were pilots, 504 had tremor.545 is normal woman, removed to adjust the sex ratio.
+    participantsHealthyOld = setdiff([501:numel(patients)]',participantsHealthyYouth);
+
+    %% Categorising Patients and Segments
+    % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy
+    % segmentType = 1 small, 2 Medium, 3 Large
+    FMrangePerPatientType = {[31,56],[57,65],[31,65],[NaN]}; %%Upper bound is FM=65, because inclusion criteria is Fm less than 66 at the time of inclusion
+    sessionNumbersPerSegmentType = {[5,6,7,10,11,12,18,19,23,24,25,30],[3,9,13,15,16,17,21,22,27,28,29,31,32],[2,4,8,14,20,26],[2:32]};
+    patientIDsPerType = {};
+    for iPatientType = 1:4
+        switch iPatientType
+            case 1, patientIDs = participantsPatients;
+            case 2, patientIDs = setdiff(participantsPatients,patientIDsPerType{1});
+            case 3, patientIDs = union(patientIDsPerType{1},patientIDsPerType{2});
+            case 4, patientIDs = participantsHealthyOld;
+        end
+        for iSegmentType = 1:4
+            [FM.FMdescriptionPerPatientTypePerSegmentType{iPatientType}{iSegmentType},patientIDsFetched,sessionNumberPerPatientIDsFetched] = ...
+                computeFMDescription(patients,patientIDs,FMrangePerPatientType{iPatientType},sessionNumbersPerSegmentType{iSegmentType});
+        end
+        patientIDsPerType{iPatientType} = patientIDsFetched;    
+        FM.sessionNumbersPerType{iPatientType} = sessionNumberPerPatientIDsFetched;
+    end
+    FM.patientIDsPerType = patientIDsPerType; 
+    
+end
+
+
+function patients = upperBoundAcceleration(patients)
+
+    %% -Interpolate accelation values, which are above a threshold (affected and unaffected)
+    accThreshold = 300;
+    for i=1:numel(patients)
+        for j=1:9     %% For number of sessions
+            if(~gf.isempty('patients{i}.sessions{j}.UE{1}.detailedData.acc'))
+                for k=1:33      %% For segments
+                    acc = patients{i}.sessions{j}.UE{1}.detailedData.acc{k};
+                    ind = find(abs(acc)>accThreshold);
+                    if (~isempty(ind))
+                        acc = [acc(2);acc;acc(end-1)];
+                        ind = ind+1;
+                        acc(ind) = 0.5*(acc(ind-1)+acc(ind+1));
+                        patients{i}.sessions{j}.UE{1}.detailedData.acc{k} = acc(2:end-1);
+                    end
+                end
+            end
+            if(~gf.isempty('patients{i}.sessions{j}.UE{2}.detailedData.acc'))
+                for k=1:33      %% For segments
+                    acc = patients{i}.sessions{j}.UE{2}.detailedData.acc{k};
+                    ind = find(abs(acc)>accThreshold);
+                    if (~isempty(ind))
+                        acc = [acc(2);acc;acc(end-1)];
+                        ind = ind+1;
+                        acc(ind) = 0.5*(acc(ind-1)+acc(ind+1));
+                        patients{i}.sessions{j}.UE{2}.detailedData.acc{k} = acc(2:end-1);
+                    end
+                end
+            end        
+        end
+    end
+
+end
+
+%% Find peak velocities for affected and nonAffected UE %%
+%   ie. fetch data from detailedData, and process it
+function patients = calculateKinematicsVariables(patients,patientsMeta)
+    for i=1:numel(patients)
+        for j=1:9
+            if(~gf.isempty('patients{i}.sessions{j}.UE{1}.detailedData.vel{33}'))
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.nZeroTouching = nan(33,1);
+                for k = 1:33
+                    patients{i}.sessions{j}.UE{1}.pointtestPhases.velMean(k) = mean(patients{i}.sessions{j}.UE{1}.detailedData.vel{k});%%Computing mean velocity. Do not use average velocity as calculated by Curictus.
+                    patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak(k) = max(patients{i}.sessions{j}.UE{1}.detailedData.vel{k});
+                    patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax(k) = (max(abs(patients{i}.sessions{j}.UE{1}.detailedData.acc{k})));
+                    patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent(k) = find((patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak(k)) == patients{i}.sessions{j}.UE{1}.detailedData.vel{1,k})/numel((patients{i}.sessions{j}.UE{1}.detailedData.vel{k}))*100;
+                    patients{i}.sessions{j}.UE{1}.pointtestPhases.HPRwrtHealthy = patients{i}.sessions{j}.UE{1}.pointtestPhases.Trajectory./patientsMeta.healthy.trajectoryPerSegmentMean;
+                    %%Calculate the time after first zero touching
+                    if find(patients{i}.sessions{j}.UE{1}.detailedData.vel{k} == 0,1,'first') == 1;
+                        idxFirstNonZeroVel = find(patients{i}.sessions{j}.UE{1}.detailedData.vel{k} ~= 0,1,'first');
+                        tmpidxToEnd = patients{i}.sessions{j}.UE{1}.detailedData.vel{k}(idxFirstNonZeroVel:end);
+                        if sum(tmpidxToEnd == 0) == 0 %%If there were no complete stops in the segment, the final velocity is assumed to be zero, and therefore, the time after first complete stop will be zero.
+                        timeAfterFirstCompleteStop = 0; %%If there are no zeros after the first few ones
+                        else
+                        timeAfterFirstCompleteStop = (patients{i}.sessions{j}.UE{1}.detailedData.t{k}(end)) - (patients{i}.sessions{j}.UE{1}.detailedData.t{k}(find(tmpidxToEnd == 0,1,'first')));
+                        end
+                    else
+                        if sum(patients{i}.sessions{j}.UE{1}.detailedData.vel{k} == 0) == 0;
+                         timeAfterFirstCompleteStop = 0; %%If there are no zeros in the segment
+                        else
+                        timeAfterFirstCompleteStop = (patients{i}.sessions{j}.UE{1}.detailedData.t{k}(end)) - (patients{i}.sessions{j}.UE{1}.detailedData.t{k}(find(patients{i}.sessions{j}.UE{1}.detailedData.vel{k} ==0,1,'first')));
+                        end
+                        timeBeforeFirstCompleteStop = (patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration(k)) - timeAfterFirstCompleteStop;
+                    end
+                     
+                     patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop(k) = timeAfterFirstCompleteStop;
+                     patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop(k) = timeBeforeFirstCompleteStop;
+                     %%Calculating the percentage of time after first complete stop
+                     patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop(k) = patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop(k)./(patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration(k))*100;
+                     patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop(k) = patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop(k)./(patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration(k))*100;
+                    % Calculate number of zero touching in every segment
+                    if(k<33)
+                        tmp = [patients{i}.sessions{j}.UE{1}.detailedData.vel{k}; patients{i}.sessions{j}.UE{1}.detailedData.vel{k+1}(1)];
+                    else
+                        tmp = patients{i}.sessions{j}.UE{1}.detailedData.vel{k};
+                    end
+                    patients{i}.sessions{j}.UE{1}.pointtestPhases.nZeroTouching(k) = sum(tmp(1:end-1)~=0 & tmp(2:end)==0);
+                end
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.velMean = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.velMean);
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak);
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax);
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent);  
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop);
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop);
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop);
+                patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop = transpose(patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop);
+           
+            end
+            
+            
+            if(~gf.isempty('patients{i}.sessions{j}.UE{2}.detailedData.vel{33}'))
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.nZeroTouching = nan(33,1);
+                for k = 1:33
+                    patients{i}.sessions{j}.UE{2}.pointtestPhases.velMean(k) = mean(patients{i}.sessions{j}.UE{2}.detailedData.vel{k});
+                    patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak(k) = max(patients{i}.sessions{j}.UE{2}.detailedData.vel{k});
+                    patients{i}.sessions{j}.UE{2}.pointtestPhases.accelerationMax(k) = (max(abs(patients{i}.sessions{j}.UE{2}.detailedData.acc{k})));
+                    patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeakPercent(k) = find((patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak(k)) == patients{i}.sessions{j}.UE{2}.detailedData.vel{1,k})/numel((patients{i}.sessions{j}.UE{2}.detailedData.vel{k}))*100; 
+                    patients{i}.sessions{j}.UE{2}.pointtestPhases.HPRwrtHealthy = patients{i}.sessions{j}.UE{2}.pointtestPhases.Trajectory./patientsMeta.healthy.trajectoryPerSegmentMean;
+                    %%Calculate the time after first zero touching
+                    if find(patients{i}.sessions{j}.UE{2}.detailedData.vel{k} == 0,1,'first') == 1;
+                        idxFirstNonZeroVel = find(patients{i}.sessions{j}.UE{2}.detailedData.vel{k} ~= 0,1,'first');
+                        tmpidxToEnd = patients{i}.sessions{j}.UE{2}.detailedData.vel{k}(idxFirstNonZeroVel:end);
+                        if sum(tmpidxToEnd == 0) == 0 %%If there were no complete stops in the segment, the final velocity is assumed to be zero, and therefore, the time after first complete stop will be zero.
+                        timeAfterFirstCompleteStop = 0; %%If there are no zeros after the first few ones
+                        else
+                        timeAfterFirstCompleteStop = (patients{i}.sessions{j}.UE{2}.detailedData.t{k}(end)) - (patients{i}.sessions{j}.UE{2}.detailedData.t{k}(find(tmpidxToEnd == 0,1,'first')));
+                        end
+                    else
+                        if sum(patients{i}.sessions{j}.UE{2}.detailedData.vel{k} == 0) == 0;
+                         timeAfterFirstCompleteStop = 0; %%If there are no zeros in the segment
+                        else
+                        timeAfterFirstCompleteStop = (patients{i}.sessions{j}.UE{2}.detailedData.t{k}(end)) - (patients{i}.sessions{j}.UE{2}.detailedData.t{k}(find(patients{i}.sessions{j}.UE{2}.detailedData.vel{k} ==0,1,'first')));
+                        end
+                        timeBeforeFirstCompleteStop = (patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration(k)) - timeAfterFirstCompleteStop;
+                    end
+                     patients{i}.sessions{j}.UE{2}.pointtestPhases.timeBeforeFirstCompleteStop(k) = timeBeforeFirstCompleteStop;
+                     patients{i}.sessions{j}.UE{2}.pointtestPhases.timeAfterFirstCompleteStop(k) = timeAfterFirstCompleteStop;
+                     %%Calculating the percentage of time after first
+                     %%complete stop
+                     patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop(k) = patients{i}.sessions{j}.UE{2}.pointtestPhases.timeBeforeFirstCompleteStop(k)./(patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration(k))*100;
+                     patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop(k) = patients{i}.sessions{j}.UE{2}.pointtestPhases.timeAfterFirstCompleteStop(k)./(patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration(k))*100;
+                    % Calculate number of zero touching in every segment
+                    if(k<33)
+                        tmp = [patients{i}.sessions{j}.UE{2}.detailedData.vel{k}; patients{i}.sessions{j}.UE{2}.detailedData.vel{k+1}(1)];
+                    else
+                        tmp = patients{i}.sessions{j}.UE{2}.detailedData.vel{k};
+                    end
+                    patients{i}.sessions{j}.UE{2}.pointtestPhases.nZeroTouching(k) = sum(tmp(1:end-1)~=0 & tmp(2:end)==0);
+                end
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.velMean = transpose(patients{i}.sessions{j}.UE{2}.pointtestPhases.velMean);
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak = transpose(patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak);
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.accelerationMax = transpose(patients{i}.sessions{j}.UE{2}.pointtestPhases.accelerationMax);
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeakPercent = transpose(patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeakPercent);
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.timeAfterFirstCompleteStop = transpose(patients{i}.sessions{j}.UE{2}.pointtestPhases.timeAfterFirstCompleteStop);
+                patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop = transpose(patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop);
+            end        
+        end
+    end
+end
+
+
+
+function trajectoryPerSegmentMean = computeTrajectoryMeanOfHealthy(patients)
+    healthyPatientIndices = 501:numel(patients);
+    trajectoryPerSegmentMean_affected = nanmean(nanmean(gf.congregate('patients{healthyPatientIndices}.sessions{:}.UE{1}.pointtestPhases.Trajectory'),1),2);
+    trajectoryPerSegmentMean_nonAffected = nanmean(nanmean(gf.congregate('patients{healthyPatientIndices}.sessions{:}.UE{2}.pointtestPhases.Trajectory'),1),2);
+    trajectoryPerSegmentMean = nanmean([trajectoryPerSegmentMean_affected;trajectoryPerSegmentMean_nonAffected],1);
+    trajectoryPerSegmentMean = permute(trajectoryPerSegmentMean,[3,2,1]);       %% Rotating the vector along 3rd dimension to first dimension.
+end
+
+
+%%
+function [FMdescription,patientIDsFetched,sessionNumberPerPatientIDsFetched] = computeFMDescription(patients,patientIDs,FMrange,segmentNumbers)
+    patientIDsFetched = [];
+    sessionNumberPerPatientIDsFetched = [];
+    age = [];
+    isMale = [];
+    isRightHanded = [];
+    height = [];
+    weight = [];
+    isParalyticArmRight = [];
+    isIschemic = [];
+    isHemorrhagic = [];
+    isThrombolysis = [];
+    isThrombectomy = [];
+    bedDays = [];
+    acuteCareDays = [];
+    admittedDays = [];
+    NIHSSArm = [];
+    oxford = [];
+    FMtotal = [];
+    FMCategoryShoulderElbowForearm = [];
+    FMCategoryWrist = [];
+    FMCategoryHand = [];
+    FMCategoryCoordination = [];
+    FMCategorySensation = [];
+    FMCategoryPassiveJointMotion = [];
+    FMCategoryPain = [];
+    ARATtotal = [];
+    %%FM4 = [];
+    duration = [];
+    velMean = [];
+    HPR = [];
+    velPeak = [];
+    velPeakPercent = [];
+    accelerationMax = [];
+    nZeroTouching = [];
+    HPRwrtHealthy = [];
+    timeBeforeFirstCompleteStop = [];
+    percentageOfTimeBeforeFirstCompleteStop = [];
+    timeAfterFirstCompleteStop = [];
+    percentageOfTimeAfterFirstCompleteStop = [];
+    durationNAUE = [];
+    velMeanNAUE = [];
+    HPRNAUE = [];
+    velPeakNAUE = [];
+    velPeakPercentNAUE = [];
+    accelerationMaxNAUE = [];
+    nZeroTouchingNAUE = [];
+    HPRwrtHealthyNAUE = [];
+    timeBeforeFirstCompleteStopNAUE = [];
+    percentageOfTimeBeforeFirstCompleteStopNAUE = [];
+    timeAfterFirstCompleteStopNAUE = [];
+    percentageOfTimeAfterFirstCompleteStopNAUE = [];
+    for i = patientIDs'
+        if(~gf.isempty('patients{i}.sessions'))
+            for j = 1:numel(patients{i}.sessions)
+                if((all(isnan(FMrange)) || ~gf.isempty('patients{i}.sessions{j}.salgot.FMtotal')) && ~gf.isempty('patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration') ...
+                        && ~gf.isempty('patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration'))                                       %% 'FMrange'=NaN for Healthy people
+                    if( (all(isnan(FMrange)) && ~gf.isempty('patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration'))          ...        %% Condition for healthy people
+                        || (patients{i}.sessions{j}.salgot.FMtotal >= FMrange(1) && patients{i}.sessions{j}.salgot.FMtotal <= FMrange(2)))      %% Condition for real patients
+                        patientIDsFetched = [patientIDsFetched;i];
+                        sessionNumberPerPatientIDsFetched = [sessionNumberPerPatientIDsFetched;j];
+                        %% Patient personal info
+                        age = [age; patients{i}.salgot.ageAtOnset];
+                        isMale = [isMale; patients{i}.salgot.sex==1];
+                        isRightHanded = [isRightHanded; patients{i}.salgot.handedness==1];
+                        isParalyticArmRight = [isParalyticArmRight; patients{i}.salgot.paralyticArm==1];
+                        if ~gf.isempty('patients{i}.salgot.length')
+                            height = [height;patients{i}.salgot.length];
+                        end
+                        if ~gf.isempty('patients{i}.salgot.weight')
+                            weight = [weight;patients{i}.salgot.weight];
+                        end
+                        %%isIschemic stroke and isHemorrhagic stroke
+                        if ~gf.isempty('patients{i}.salgot.CVSA_dicho_new') && isnumeric(patients{i}.salgot.CVSA_dicho_new)
+                        isIschemic = [isIschemic; patients{i}.salgot.CVSA_dicho_new==1];
+                        isHemorrhagic = [isHemorrhagic;patients{i}.salgot.CVSA_dicho_new==0]; 
+                        end
+                        isThrombolysis = [isThrombolysis;patients{i}.salgot.TrombolysGivet==1];
+                        isThrombectomy = [isThrombectomy;patients{i}.salgot.Trombektomi==1];
+                        bedDays =[bedDays;patients{i}.salgot.totaltbed];
+                        acuteCareDays =[acuteCareDays;patients{i}.salgot.acuteCare];
+                        admittedDays = [admittedDays;patients{i}.salgot.noOfDaysAdmittted];
+                        %%Adding clinical scales, NIHSSarm_new and <=9
+                        if ~gf.isempty('patients{i}.salgot.NIHSSarm_new') && isnumeric(patients{i}.salgot.NIHSSarm_new) && patients{i}.salgot.NIHSSarm_new <= 4
+                        NIHSSArm = [NIHSSArm;patients{i}.salgot.NIHSSarm_new]; 
+                        %%if ~gf.isempty('patients{i}.salgot.CogKSS') && isnumeric(patients{i}.salgot.Cog4KSS) && patients{i}.salgot.Cog4KSS <= 9
+                            %%NIHSSArm = [NIHSSArm;patients{i}.salgot.Cog4KSS];        
+                        end
+                        if ~gf.isempty('patients{i}.salgot.OXFORD_new') && isnumeric(patients{i}.salgot.NIHSSA_new) && patients{i}.salgot.OXFORD_new <= 4
+                            oxford = [oxford;patients{i}.salgot.OXFORD_new];        
+                        end
+                        
+                        %%Fugl Meyer total, categories and ARAT info
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.FMtotal') && patients{i}.sessions{j}.salgot.FMtotal <= 66 %%Excludes entires like '99' in places where data is non existent
+                            FMtotal = [FMtotal;patients{i}.sessions{j}.salgot.FMtotal]; %%Number of elements = 66. 
+                        end
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.FMovre') && patients{i}.sessions{j}.salgot.FMovre <= 36
+                        FMCategoryShoulderElbowForearm = [FMCategoryShoulderElbowForearm;patients{i}.sessions{j}.salgot.FMovre];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.FMhand') && patients{i}.sessions{j}.salgot.FMhand <= 10
+                        FMCategoryWrist = [FMCategoryWrist;patients{i}.sessions{j}.salgot.FMhand];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.FMfingrar') && patients{i}.sessions{j}.salgot.FMfingrar <= 14
+                        FMCategoryHand = [FMCategoryHand;patients{i}.sessions{j}.salgot.FMfingrar];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.FMkoord') && patients{i}.sessions{j}.salgot.FMkoord <= 6
+                        FMCategoryCoordination = [FMCategoryCoordination;patients{i}.sessions{j}.salgot.FMkoord];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.sens') && patients{i}.sessions{j}.salgot.sens <= 12
+                        FMCategorySensation = [FMCategorySensation;patients{i}.sessions{j}.salgot.sens];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.passivROM') && patients{i}.sessions{j}.salgot.passivROM <= 24
+                        FMCategoryPassiveJointMotion = [FMCategoryPassiveJointMotion;patients{i}.sessions{j}.salgot.passivROM];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.smarta') && patients{i}.sessions{j}.salgot.smarta <= 24
+                        FMCategoryPain = [FMCategoryPain;patients{i}.sessions{j}.salgot.smarta];
+                        end 
+                        if ~gf.isempty('patients{i}.sessions{j}.salgot.ARATtotal') && patients{i}.sessions{j}.salgot.ARATtotal <= 57
+                            ARATtotal = [ARATtotal;patients{i}.sessions{j}.salgot.ARATtotal];
+                        end
+                        
+                        %% Patient FM components per sessions (if(0) because code is retained for study purposes)
+                        if(0)
+                        if(~gf.isempty('patients{i}.sessions{j}.salgot.FM4a') && isa(patients{i}.sessions{j}.salgot.FM4a,'double'))
+                           FM4 = [FM4;sum([patients{i}.sessions{j}.salgot.FM4a;patients{i}.sessions{j}.salgot.FM4b;patients{i}.sessions{j}.salgot.FM4c])];
+                        end
+                        end
+                        
+                        %% For Affected UE, get the mean value of each segment type (eg: small) for all patients, i.e mean of all small segments of patient ID 101 etc
+                        duration = [duration;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration(segmentNumbers))];
+                        velMean = [velMean;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.velMean(segmentNumbers))];
+                        HPR = [HPR;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.HPR(segmentNumbers))];
+                        velPeak = [velPeak;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak(segmentNumbers))];
+                        velPeakPercent = [velPeakPercent;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent(segmentNumbers))];
+                        accelerationMax = [accelerationMax;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax(segmentNumbers))];
+                        nZeroTouching = [nZeroTouching;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.nZeroTouching(segmentNumbers))];
+                        HPRwrtHealthy = [HPRwrtHealthy;mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.HPRwrtHealthy(segmentNumbers))];
+                        timeBeforeFirstCompleteStop = [timeBeforeFirstCompleteStop;nanmean(patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop(segmentNumbers))]; 
+                        percentageOfTimeBeforeFirstCompleteStop = [percentageOfTimeBeforeFirstCompleteStop;nanmean(patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop(segmentNumbers))]; 
+                        timeAfterFirstCompleteStop = [timeAfterFirstCompleteStop;nanmean(patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop(segmentNumbers))]; 
+                        percentageOfTimeAfterFirstCompleteStop = [percentageOfTimeAfterFirstCompleteStop;nanmean(patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop(segmentNumbers))];
+                        %% For Non-affected UE
+                        durationNAUE = [durationNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration(segmentNumbers))];
+                        velMeanNAUE = [velMeanNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.velMean(segmentNumbers))];
+                        HPRNAUE = [HPRNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.HPR(segmentNumbers))];
+                        velPeakNAUE = [velPeakNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak(segmentNumbers))];
+                        velPeakPercentNAUE = [velPeakPercentNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeakPercent(segmentNumbers))];
+                        accelerationMaxNAUE = [accelerationMaxNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.accelerationMax(segmentNumbers))];
+                        nZeroTouchingNAUE = [nZeroTouchingNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.nZeroTouching(segmentNumbers))];
+                        HPRwrtHealthyNAUE = [HPRwrtHealthyNAUE;mean(patients{i}.sessions{j}.UE{2}.pointtestPhases.HPRwrtHealthy(segmentNumbers))];
+                        timeBeforeFirstCompleteStopNAUE = [timeBeforeFirstCompleteStopNAUE;nanmean(patients{i}.sessions{j}.UE{2}.pointtestPhases.timeBeforeFirstCompleteStop(segmentNumbers))]; 
+                        percentageOfTimeBeforeFirstCompleteStopNAUE = [percentageOfTimeBeforeFirstCompleteStopNAUE;nanmean(patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop(segmentNumbers))];
+                        timeAfterFirstCompleteStopNAUE = [timeAfterFirstCompleteStopNAUE;nanmean(patients{i}.sessions{j}.UE{2}.pointtestPhases.timeAfterFirstCompleteStop(segmentNumbers))]; 
+                        percentageOfTimeAfterFirstCompleteStopNAUE = [percentageOfTimeAfterFirstCompleteStopNAUE;nanmean(patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop(segmentNumbers))];
+                        break;
+                    end
+                end
+            end
+        end
+    end
+    
+    
+    
+    %%Find the mean, std, min, max, number(n) and percentages of demographic values
+    FMdescription.age.mean = mean(age); FMdescription.age.std = std(age); FMdescription.age.min = min(age); FMdescription.age.max = max(age); FMdescription.age.n = numel(age);
+    FMdescription.malePercent.number = sum(isMale); FMdescription.malePercent.percent = 100*mean(isMale); FMdescription.malePercent.n = numel(isMale);
+    FMdescription.rightHand.number = sum(isRightHanded); FMdescription.rightHand.percent = 100*mean(isRightHanded); FMdescription.rightHand.n = numel(isRightHanded);
+    FMdescription.isParalyticArmRight.number = sum(isParalyticArmRight); FMdescription.isParalyticArmRight.percent = 100*mean(isParalyticArmRight); FMdescription.isParalyticArmRight.n = numel(isParalyticArmRight);
+    FMdescription.isIschemic.number = sum(isIschemic); FMdescription.isIschemic.percent = 100*mean(isIschemic); FMdescription.isIschemic.n = numel(isIschemic);
+    FMdescription.isHemorrhagic.number = sum(isHemorrhagic); FMdescription.isHemorrhagic.percent = 100*mean(isHemorrhagic); FMdescription.isHemorrhagic.n = numel(isHemorrhagic);
+    FMdescription.isThrombolysis = sum(isThrombolysis); 
+    FMdescription.isThrombectomy = sum(isThrombectomy);
+    FMdescription.bedDays.mean = mean(bedDays); FMdescription.bedDays.std = std(bedDays); FMdescription.bedDays.min = min(bedDays); FMdescription.bedDays.max = max(bedDays); FMdescription.bedDays.n = numel(bedDays);
+    FMdescription.acuteCareDays.mean = mean(acuteCareDays); FMdescription.acuteCareDays.std = std(acuteCareDays); FMdescription.acuteCareDays.min = min(acuteCareDays); FMdescription.acuteCareDays.max = max(acuteCareDays); FMdescription.acuteCareDays.n = numel(acuteCareDays);
+    FMdescription.admittedDays.mean = mean(admittedDays); FMdescription.admittedDays.std = std(admittedDays); FMdescription.admittedDays.min = min(admittedDays); FMdescription.admittedDays.max = max(admittedDays); FMdescription.admittedDays.n = numel(admittedDays);
+    FMdescription.NIHSS.histcounts = histcounts(NIHSSArm,[0:4]); FMdescription.NIHSS.std = nanstd(NIHSSArm); FMdescription.NIHSS.min = min(NIHSSArm); FMdescription.NIHSS.max = max(NIHSSArm); FMdescription.NIHSS.n = numel(NIHSSArm); 
+    FMdescription.oxford.histcounts = histcounts(oxford,[1:13])'; FMdescription.oxford.std = nanstd(oxford); FMdescription.oxford.min = min(oxford); FMdescription.oxford.max = max(oxford); FMdescription.oxford.n = numel(oxford); 
+    %%Find the medians of Fugl Meyer scores instead of means
+    FMdescription.FMtotal.median = median(FMtotal); FMdescription.FMtotal.std = std(FMtotal); FMdescription.FMtotal.min = min(FMtotal); FMdescription.FMtotal.max = max(FMtotal); FMdescription.FMtotal.n = numel(FMtotal); 
+    FMdescription.FMCategoryShoulderElbowForearm.median = nanmedian(FMCategoryShoulderElbowForearm); FMdescription.FMCategoryShoulderElbowForearm.std = nanstd(FMCategoryShoulderElbowForearm); FMdescription.FMCategoryShoulderElbowForearm.min = min(FMCategoryShoulderElbowForearm,[], 'omitnan'); FMdescription.FMCategoryShoulderElbowForearm.max = max(FMCategoryShoulderElbowForearm,[], 'omitnan'); FMdescription.FMCategoryShoulderElbowForearm.n = numel(FMCategoryShoulderElbowForearm);
+    FMdescription.FMCategoryWrist.median = nanmedian(FMCategoryWrist); FMdescription.FMCategoryWrist.std = nanstd(FMCategoryWrist); FMdescription.FMCategoryWrist.min = min(FMCategoryWrist,[],'omitnan'); FMdescription.FMCategoryWrist.max = max(FMCategoryWrist,[], 'omitnan'); FMdescription.FMCategoryWrist.n = numel(FMCategoryWrist); FMdescription.FMCategoryHand.n = numel(FMCategoryHand); 
+    FMdescription.FMCategoryHand.median = nanmedian(FMCategoryHand); FMdescription.FMCategoryHand.std = nanstd(FMCategoryHand); FMdescription.FMCategoryHand.min = min(FMCategoryHand,[], 'omitnan'); FMdescription.FMCategoryHand.max = max(FMCategoryHand,[], 'omitnan'); FMdescription.FMCategoryHand.n = numel(FMCategoryHand);
+    FMdescription.FMCategoryCoordination.median = nanmedian(FMCategoryCoordination); FMdescription.FMCategoryCoordination.std = nanstd(FMCategoryCoordination); FMdescription.FMCategoryCoordination.min = min(FMCategoryCoordination,[], 'omitnan'); FMdescription.FMCategoryCoordination.max = max(FMCategoryCoordination,[],'omitnan'); FMdescription.FMCategoryCoordination.n = numel(FMCategoryCoordination);
+    %%Find the number of persons with lower score instead of means
+    FMdescription.FMCategorySensation.nLossOfSensation = sum(FMCategorySensation<12); FMdescription.FMCategorySensation.n = numel(FMCategorySensation);FMdescription.FMCategorySensation.min = min(FMCategorySensation,[], 'omitnan'); FMdescription.FMCategorySensation.max = max(FMCategorySensation,[], 'omitnan');FMdescription.FMCategorySensation.min = min(FMCategorySensation,[], 'omitnan');
+    FMdescription.FMCategoryPassiveJointMotion.nLossOfJointMotion = sum(FMCategoryPassiveJointMotion<24); FMdescription.FMCategoryPassiveJointMotion.n = numel(FMCategorySensation); FMdescription.FMCategoryPassiveJointMotion.min = min(FMCategoryPassiveJointMotion,[], 'omitnan'); FMdescription.FMCategoryPassiveJointMotion.max = max(FMCategoryPassiveJointMotion,[], 'omitnan');
+    FMdescription.FMCategoryPain.nPain = sum(FMCategoryPain<24); FMdescription.FMCategoryPain.n = numel(FMCategoryPain);FMdescription.FMCategoryPain.min = min(FMCategoryPain,[], 'omitnan'); FMdescription.FMCategoryPain.max = max(FMCategoryPain,[], 'omitnan'); 
+    FMdescription.ARATtotal.median = nanmedian(ARATtotal); FMdescription.ARATtotal.std = nanstd(ARATtotal); FMdescription.ARATtotal.min = min(ARATtotal); FMdescription.ARATtotal.max = max(ARATtotal); FMdescription.ARATtotal.n = numel(ARATtotal);
+    
+    %%FMdescription.FM4.mean = nanmean(FM4); FMdescription.FM4.std = nanstd(FM4);
+    
+
+    %% Take mean for Affected UE
+    FMdescription.UE{1}.duration.mean = mean(duration(:));  FMdescription.UE{1}.duration.std = std(duration(:));
+    FMdescription.UE{1}.velMean.mean = mean(velMean(:));  FMdescription.UE{1}.velMean.std = std(velMean(:));
+    FMdescription.UE{1}.HPR.mean = mean(HPR(:));  FMdescription.UE{1}.HPR.std = std(HPR(:));
+    FMdescription.UE{1}.velPeak.mean = mean(velPeak(:));  FMdescription.UE{1}.velPeak.std = std(velPeak(:));
+    FMdescription.UE{1}.velPeakPercent.mean = mean(velPeakPercent(:));  FMdescription.UE{1}.velPeakPercent.std = std(velPeakPercent(:));
+    FMdescription.UE{1}.accelerationMax.mean = mean(accelerationMax(:));  FMdescription.UE{1}.accelerationMax.std = std(accelerationMax(:));
+    FMdescription.UE{1}.nZeroTouching.mean = mean(nZeroTouching(:));  FMdescription.UE{1}.nZeroTouching.std = std(nZeroTouching(:));
+    FMdescription.UE{1}.HPRwrtHealthy.mean = mean(HPRwrtHealthy(:));  FMdescription.UE{1}.HPRwrtHealthy.std = std(HPRwrtHealthy(:));
+    FMdescription.UE{1}.timeBeforeFirstCompleteStop.mean = mean(timeBeforeFirstCompleteStop(:)); FMdescription.UE{1}.timeBeforeFirstCompleteStop.std = std(timeBeforeFirstCompleteStop(:)); 
+    FMdescription.UE{1}.percentageOfTimeBeforeFirstCompleteStop.mean = mean(percentageOfTimeBeforeFirstCompleteStop(:)); FMdescription.UE{1}.percentageOfTimeBeforeFirstCompleteStop.std = std(percentageOfTimeBeforeFirstCompleteStop(:)); 
+    FMdescription.UE{1}.timeAfterFirstCompleteStop.mean = mean(timeAfterFirstCompleteStop(:)); FMdescription.UE{1}.timeAfterFirstCompleteStop.std = std(timeAfterFirstCompleteStop(:)); 
+    FMdescription.UE{1}.percentageOfTimeAfterFirstCompleteStop.mean = mean(percentageOfTimeAfterFirstCompleteStop(:)); FMdescription.UE{1}.percentageOfTimeAfterFirstCompleteStop.std = std(percentageOfTimeAfterFirstCompleteStop(:)); 
+    %% Take mean for Non-Affected UE
+    FMdescription.UE{2}.duration.mean = mean(durationNAUE(:));  FMdescription.UE{2}.duration.std = std(durationNAUE(:));
+    FMdescription.UE{2}.velMean.mean = mean(velMeanNAUE(:));  FMdescription.UE{2}.velMean.std = std(velMeanNAUE(:));
+    FMdescription.UE{2}.HPR.mean = mean(HPRNAUE(:));  FMdescription.UE{2}.HPR.std = std(HPRNAUE(:));
+    FMdescription.UE{2}.velPeak.mean = mean(velPeakNAUE(:));  FMdescription.UE{2}.velPeak.std = std(velPeakNAUE(:));
+    FMdescription.UE{2}.velPeakPercent.mean = mean(velPeakPercentNAUE(:));  FMdescription.UE{2}.velPeakPercent.std = std(velPeakPercentNAUE(:));
+    FMdescription.UE{2}.accelerationMax.mean = mean(accelerationMaxNAUE(:));  FMdescription.UE{2}.accelerationMax.std = std(accelerationMaxNAUE(:));
+    FMdescription.UE{2}.nZeroTouching.mean = mean(nZeroTouchingNAUE(:));  FMdescription.UE{2}.nZeroTouching.std = std(nZeroTouchingNAUE(:));
+    FMdescription.UE{2}.HPRwrtHealthy.mean = mean(HPRwrtHealthyNAUE(:));  FMdescription.UE{2}.HPRwrtHealthy.std = std(HPRwrtHealthyNAUE(:));
+    FMdescription.UE{2}.timeBeforeFirstCompleteStop.mean = mean(timeBeforeFirstCompleteStopNAUE(:)); FMdescription.UE{2}.timeBeforeFirstCompleteStop.std = std(timeBeforeFirstCompleteStopNAUE(:)); 
+    FMdescription.UE{2}.percentageOfTimeBeforeFirstCompleteStop.mean = mean(percentageOfTimeBeforeFirstCompleteStopNAUE(:)); FMdescription.UE{2}.percentageOfTimeBeforeFirstCompleteStop.std = std(percentageOfTimeBeforeFirstCompleteStopNAUE(:)); 
+    FMdescription.UE{2}.timeAfterFirstCompleteStop.mean = mean(timeAfterFirstCompleteStopNAUE(:)); FMdescription.UE{2}.timeAfterFirstCompleteStop.std = std(timeAfterFirstCompleteStopNAUE(:)); 
+    FMdescription.UE{2}.percentageOfTimeAfterFirstCompleteStop.mean = mean(percentageOfTimeAfterFirstCompleteStopNAUE(:)); FMdescription.UE{2}.percentageOfTimeAfterFirstCompleteStop.std = std(percentageOfTimeAfterFirstCompleteStopNAUE(:)); 
+end
