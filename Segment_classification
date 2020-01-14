@@ -1,0 +1,234 @@
+%%Describe the SALGOT population
+
+% Author : netha.hussain@gu.se
+
+%%Group the segments into small, medium, large
+largeSeg = [2,4,8,14,20,26];
+mediumSeg = [3,9,13,15,16,17,21,22,27,28,29,31,32];
+smallSeg = [5,6,7,10,11,12,18,19,23,24,25,30];
+
+
+%% To fetch all patients,sessions,kinematics whose FM is moderate (32-57)
+patientIDMod = [];
+sessionIDMod = [];
+FMtotalMod = [];
+durationMod= [];
+avgVelocityMod = [];
+HPRMod = [];
+velPeakMod = [];
+velPeakPercentMod = [];
+accelerationMaxMod = [];
+
+    for i = 1:numel(patients) 
+        if(~gf.isempty('patients{i}.sessions'))
+            for j = 1:numel(patients{i}.sessions)
+                if(~gf.isempty('patients{i}.sessions{j}.salgot.FMtotal'))
+                    if(~gf.isempty('patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'))
+                    if((patients{i}.sessions{j}.salgot.FMtotal<57)&(patients{i}.sessions{j}.salgot.FMtotal>31)) ;
+                        FMtotalMod = [FMtotalMod;patients{i}.sessions{j}.salgot.FMtotal'];
+                        patientIDMod = [patientIDMod;i];
+                        sessionIDMod = [sessionIDMod;j];
+                        durationMod = [durationMod;patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'];
+                        avgVelocityMod = [avgVelocityMod;patients{i}.sessions{j}.affectedUE.pointtestPhases.Avg_Velocity'];
+                        HPRMod = [HPRMod;patients{i}.sessions{j}.affectedUE.pointtestPhases.HPR'];
+                        velPeakMod = [velPeakMod;patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeak'];
+                        velPeakPercentMod = [velPeakPercentMod;patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeakPercent'];
+                        accelerationMaxMod = [accelerationMaxMod;patients{i}.sessions{j}.affectedUE.pointtestPhases.accelerationMax'];
+                        break;
+                    end
+                end
+            end
+        end
+        end
+    end
+FMod = [patientIDMod,sessionIDMod,FMtotalMod,durationMod,avgVelocityMod,HPRMod,velPeakMod,velPeakPercentMod,accelerationMaxMod];
+%%Find the mean and standard deviations of FMod
+DescribeMod = [];
+
+DescribeMod(1,1) = mean(mean(durationMod(:,largeSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeMod(2,1) = mean(mean(avgVelocityMod(:,largeSeg)));
+DescribeMod(3,1) = mean(mean(HPRMod(:,largeSeg)));
+DescribeMod(4,1) = mean(mean(velPeakMod(:,largeSeg)));
+DescribeMod(5,1) = mean(mean(velPeakPercentMod(:,largeSeg)));
+DescribeMod(6,1) = mean(mean(accelerationMaxMod(:,largeSeg)));
+
+DescribeMod(1,2) = std(reshape((durationMod(:,largeSeg)),[],1))
+DescribeMod(2,2) = std(reshape((avgVelocityMod(:,largeSeg)),[],1))
+DescribeMod(3,2) = std(reshape((HPRMod(:,largeSeg)),[],1))
+DescribeMod(4,2) = std(reshape((velPeakMod(:,largeSeg)),[],1))
+DescribeMod(5,2) = std(reshape((velPeakPercentMod(:,largeSeg)),[],1))
+DescribeMod(6,2) = std(reshape((accelerationMaxMod(:,largeSeg)),[],1))
+
+DescribeMod(7,1) = mean(mean(durationMod(:,mediumSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeMod(8,1) = mean(mean(avgVelocityMod(:,mediumSeg)));
+DescribeMod(9,1) = mean(mean(HPRMod(:,mediumSeg)));
+DescribeMod(10,1) = mean(mean(velPeakMod(:,mediumSeg)));
+DescribeMod(11,1) = mean(mean(velPeakPercentMod(:,mediumSeg)));
+DescribeMod(12,1) = mean(mean(accelerationMaxMod(:,mediumSeg)));
+
+DescribeMod(7,2) = std(reshape((durationMod(:,mediumSeg)),[],1))
+DescribeMod(8,2) = std(reshape((avgVelocityMod(:,mediumSeg)),[],1))
+DescribeMod(9,2) = std(reshape((HPRMod(:,mediumSeg)),[],1))
+DescribeMod(10,2) = std(reshape((velPeakMod(:,mediumSeg)),[],1))
+DescribeMod(11,2) = std(reshape((velPeakPercentMod(:,mediumSeg)),[],1))
+DescribeMod(12,2) = std(reshape((accelerationMaxMod(:,mediumSeg)),[],1))
+
+DescribeMod(13,1) = mean(mean(durationMod(:,smallSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeMod(14,1) = mean(mean(avgVelocityMod(:,smallSeg)));
+DescribeMod(15,1) = mean(mean(HPRMod(:,smallSeg)));
+DescribeMod(16,1) = mean(mean(velPeakMod(:,smallSeg)));
+DescribeMod(17,1) = mean(mean(velPeakPercentMod(:,smallSeg)));
+DescribeMod(18,1) = mean(mean(accelerationMaxMod(:,smallSeg)));
+
+DescribeMod(13,2) = std(reshape((durationMod(:,smallSeg)),[],1))
+DescribeMod(14,2) = std(reshape((avgVelocityMod(:,smallSeg)),[],1))
+DescribeMod(15,2) = std(reshape((HPRMod(:,smallSeg)),[],1))
+DescribeMod(16,2) = std(reshape((velPeakMod(:,smallSeg)),[],1))
+DescribeMod(17,2) = std(reshape((velPeakPercentMod(:,smallSeg)),[],1))
+DescribeMod(18,2) = std(reshape((accelerationMaxMod(:,smallSeg)),[],1))
+
+
+%% To fetch all patients,sessions,kinematics whose FM is mild (58-66)
+patientIDMild = [];
+sessionIDMild = [];
+FMtotalMild = [];
+durationMild= [];
+avgVelocityMild = [];
+HPRMild = [];
+velPeakMild = [];
+velPeakPercentMild = [];
+accelerationMaxMild = [];
+
+  for i = 1: numel(patients);
+        if(~gf.isempty('patients{i}.sessions'))
+            for j = 1:numel(patients{i}.sessions)
+                if(~gf.isempty('patients{i}.sessions{j}.salgot.FMtotal'))
+                    if(~gf.isempty('patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'))
+                        if (ismember(i,patientIDMod) == 0);%%Removing the patients who were included in moderate group
+                    if((patients{i}.sessions{j}.salgot.FMtotal<67)&(patients{i}.sessions{j}.salgot.FMtotal>57));
+                        FMtotalMild = [FMtotalMild;patients{i}.sessions{j}.salgot.FMtotal'];
+                        patientIDMild = [patientIDMild;i];
+                        sessionIDMild = [sessionIDMild;j];
+                        durationMild = [durationMild;patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'];
+                        avgVelocityMild = [avgVelocityMild;patients{i}.sessions{j}.affectedUE.pointtestPhases.Avg_Velocity'];
+                        HPRMild = [HPRMild;patients{i}.sessions{j}.affectedUE.pointtestPhases.HPR'];
+                        velPeakMild = [velPeakMild;patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeak'];
+                        velPeakPercentMild = [velPeakPercentMild;patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeakPercent'];
+                        accelerationMaxMild = [accelerationMaxMild;patients{i}.sessions{j}.affectedUE.pointtestPhases.accelerationMax'];
+                        break;
+                    end
+                end
+            end
+        end
+        end
+        end
+  end
+
+FMild = [patientIDMild,sessionIDMild,FMtotalMild,durationMild,avgVelocityMild,HPRMild,velPeakMild,velPeakPercentMild,accelerationMaxMild];
+
+DescribeMild = [];
+
+DescribeMild(1,1) = mean(mean(durationMild(:,largeSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeMild(2,1) = mean(mean(avgVelocityMild(:,largeSeg)));
+DescribeMild(3,1) = mean(mean(HPRMild(:,largeSeg)));
+DescribeMild(4,1) = mean(mean(velPeakMild(:,largeSeg)));
+DescribeMild(5,1) = mean(mean(velPeakPercentMild(:,largeSeg)));
+DescribeMild(6,1) = mean(mean(accelerationMaxMild(:,largeSeg)));
+
+DescribeMild(1,2) = std(reshape((durationMild(:,largeSeg)),[],1));
+DescribeMild(2,2) = std(reshape((avgVelocityMild(:,largeSeg)),[],1));
+DescribeMild(3,2) = std(reshape((HPRMild(:,largeSeg)),[],1));
+DescribeMild(4,2) = std(reshape((velPeakMild(:,largeSeg)),[],1));
+DescribeMild(5,2) = std(reshape((velPeakPercentMild(:,largeSeg)),[],1));
+DescribeMild(6,2) = std(reshape((accelerationMaxMild(:,largeSeg)),[],1));
+
+DescribeMild(7,1) = mean(mean(durationMild(:,mediumSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeMild(8,1) = mean(mean(avgVelocityMild(:,mediumSeg)));
+DescribeMild(9,1) = mean(mean(HPRMild(:,mediumSeg)));
+DescribeMild(10,1) = mean(mean(velPeakMild(:,mediumSeg)));
+DescribeMild(11,1) = mean(mean(velPeakPercentMild(:,mediumSeg)));
+DescribeMild(12,1) = mean(mean(accelerationMaxMild(:,mediumSeg)));
+
+DescribeMild(7,2) = std(reshape((durationMild(:,mediumSeg)),[],1));
+DescribeMild(8,2) = std(reshape((avgVelocityMild(:,mediumSeg)),[],1));
+DescribeMild(9,2) = std(reshape((HPRMild(:,mediumSeg)),[],1));
+DescribeMild(10,2) = std(reshape((velPeakMild(:,mediumSeg)),[],1));
+DescribeMild(11,2) = std(reshape((velPeakPercentMild(:,mediumSeg)),[],1));
+DescribeMild(12,2) = std(reshape((accelerationMaxMild(:,mediumSeg)),[],1));
+
+DescribeMild(13,1) = mean(mean(durationMild(:,smallSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeMild(14,1) = mean(mean(avgVelocityMild(:,smallSeg)));
+DescribeMild(15,1) = mean(mean(HPRMild(:,smallSeg)));
+DescribeMild(16,1) = mean(mean(velPeakMild(:,smallSeg)));
+DescribeMild(17,1) = mean(mean(velPeakPercentMild(:,smallSeg)));
+DescribeMild(18,1) = mean(mean(accelerationMaxMild(:,smallSeg)));
+
+DescribeMild(13,2) = std(reshape((durationMild(:,smallSeg)),[],1));
+DescribeMild(14,2) = std(reshape((avgVelocityMild(:,smallSeg)),[],1));
+DescribeMild(15,2) = std(reshape((HPRMild(:,smallSeg)),[],1));
+DescribeMild(16,2) = std(reshape((velPeakMild(:,smallSeg)),[],1));
+DescribeMild(17,2) = std(reshape((velPeakPercentMild(:,smallSeg)),[],1));
+DescribeMild(18,2) = std(reshape((accelerationMaxMild(:,smallSeg)),[],1));
+
+
+%%To group together mild and moderate values and create a 'whole' group
+
+patientIDWhole = [patientIDMod; patientIDMild];
+sessionIDWhole = [sessionIDMod; sessionIDMild];
+FMtotalWhole = [FMtotalMod;FMtotalMild];
+durationWhole= [durationMod;durationMild];
+avgVelocityWhole = [avgVelocityMod;avgVelocityMild];
+HPRWhole = [HPRMod;HPRMild];
+velPeakWhole = [velPeakMod;velPeakMild];
+velPeakPercentWhole = [velPeakPercentMod;velPeakPercentMild];
+accelerationMaxWhole = [accelerationMaxMod;accelerationMaxMild];
+
+DescribeWhole = [];
+
+DescribeWhole(1,1) = mean(mean(durationWhole(:,largeSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeWhole(2,1) = mean(mean(avgVelocityWhole(:,largeSeg)));
+DescribeWhole(3,1) = mean(mean(HPRWhole(:,largeSeg)));
+DescribeWhole(4,1) = mean(mean(velPeakWhole(:,largeSeg)));
+DescribeWhole(5,1) = mean(mean(velPeakPercentWhole(:,largeSeg)));
+DescribeWhole(6,1) = mean(mean(accelerationMaxWhole(:,largeSeg)));
+
+
+DescribeWhole(1,2) = std(reshape((durationWhole(:,largeSeg)),[],1));
+DescribeWhole(2,2) = std(reshape((avgVelocityWhole(:,largeSeg)),[],1));
+DescribeWhole(3,2) = std(reshape((HPRWhole(:,largeSeg)),[],1));
+DescribeWhole(4,2) = std(reshape((velPeakWhole(:,largeSeg)),[],1));
+DescribeWhole(5,2) = std(reshape((velPeakPercentWhole(:,largeSeg)),[],1));
+DescribeWhole(6,2) = std(reshape((accelerationMaxWhole(:,largeSeg)),[],1));
+
+DescribeWhole(7,1) = mean(mean(durationWhole(:,mediumSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeWhole(8,1) = mean(mean(avgVelocityWhole(:,mediumSeg)));
+DescribeWhole(9,1) = mean(mean(HPRWhole(:,mediumSeg)));
+DescribeWhole(10,1) = mean(mean(velPeakWhole(:,mediumSeg)));
+DescribeWhole(11,1) = mean(mean(velPeakPercentWhole(:,mediumSeg)));
+DescribeWhole(12,1) = mean(mean(accelerationMaxWhole(:,mediumSeg)));
+
+DescribeWhole(7,2) = std(reshape((durationWhole(:,mediumSeg)),[],1));
+DescribeWhole(8,2) = std(reshape((avgVelocityWhole(:,mediumSeg)),[],1));
+DescribeWhole(9,2) = std(reshape((HPRWhole(:,mediumSeg)),[],1));
+DescribeWhole(10,2) = std(reshape((velPeakWhole(:,mediumSeg)),[],1));
+DescribeWhole(11,2) = std(reshape((velPeakPercentWhole(:,mediumSeg)),[],1));
+DescribeWhole(12,2) = std(reshape((accelerationMaxWhole(:,mediumSeg)),[],1));
+
+DescribeWhole(13,1) = mean(mean(durationWhole(:,smallSeg))); %%Mean of mean will be equal to the total mean because there are 32 values in all 6 columns
+DescribeWhole(14,1) = mean(mean(avgVelocityWhole(:,smallSeg)));
+DescribeWhole(15,1) = mean(mean(HPRWhole(:,smallSeg)));
+DescribeWhole(16,1) = mean(mean(velPeakWhole(:,smallSeg)));
+DescribeWhole(17,1) = mean(mean(velPeakPercentWhole(:,smallSeg)));
+DescribeWhole(18,1) = mean(mean(accelerationMaxWhole(:,smallSeg)));
+
+
+DescribeWhole(13,2) = std(reshape((durationWhole(:,smallSeg)),[],1));
+DescribeWhole(14,2) = std(reshape((avgVelocityWhole(:,smallSeg)),[],1));
+DescribeWhole(15,2) = std(reshape((HPRWhole(:,smallSeg)),[],1));
+DescribeWhole(16,2) = std(reshape((velPeakWhole(:,smallSeg)),[],1));
+DescribeWhole(17,2) = std(reshape((velPeakPercentWhole(:,smallSeg)),[],1));
+DescribeWhole(18,2) = std(reshape((accelerationMaxWhole(:,smallSeg)),[],1));
+
+%%%%Describe the group 
+
+Describe = [DescribeWhole DescribeMild DescribeMod]
