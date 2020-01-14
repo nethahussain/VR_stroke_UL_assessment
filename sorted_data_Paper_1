@@ -1,0 +1,839 @@
+
+%%REMINDER : Run Results_Paper_1 first, before running sortedData_Paper_1.
+%%sortedData_Paper_1 will not work without running REsults_Paper_1 first.
+
+%% To create a table, with means of small, medium and large segments of all 68 participants, for mild, moderate and healthy participants. 
+SmallSegments = [5,6,7,10,11,12,18,19,23,24,25,30];
+MediumSegments = [3,9,13,15,16,17,21,22,27,28,29,31,32];
+LargeSegments = [2,4,8,14,20,26];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%For moderate stroke
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+patientIDs1 = cat(1,patientsMeta.FM.patientIDsPerType{1}); %%Change the patient type here, % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy
+sessionNumbers1 = cat(1,patientsMeta.FM.sessionNumbersPerType{1}); %Change patient type here ALSO, also change affected UE to UE{2} in line 22-28.
+ages1 = [];
+isMale1 = [];
+isRightHanded1 = [];
+height1 = [];
+weight1 = [];
+isParalyticArmRight1 = [];
+isIschemic1 = [];
+NIHSSArm1 = [];
+oxford1 = [];
+FMscores1 = [];
+FMCategoryShoulderElbowForearm1 = [];
+FMCategoryWrist1 = [];
+FMCategoryHand1 = [];
+FMCategoryCoordination1 = [];
+FMCategorySensation1 = [];
+FMCategoryPassiveJointMotion1 = [];
+FMCategoryPain1 = [];
+ARATtotal1 = [];
+durationPerPatientPerParameterPerSegment1 = [];
+velMeanPerPatientPerParameterPerSegment1 = [];
+HPRPerPatientPerParameterPerSegment1 = [];
+nZeroTouchingPerPatientPerParameterPerSegment1 = [];
+velPeakPerPatientPerParameterPerSegment1 = [];
+velPeakPercentPerPatientPerParameterPerSegment1 = [];
+accelerationMaxPerPatientPerParameterPerSegment1 = [];
+straightLineDistancePerPatientPerParameterPerSegment1 = [];
+timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment1 = [];
+percentTimeBeforeStopPerPatientPerParameterPerSegment1 = []; %%Shortening the variable name to fit into 64 characters
+timeAfterFirstCompleteStopPerPatientPerParameterPerSegment1 = [];
+percentTimeAfterStopPerPatientPerParameterPerSegment1 = []; %%Shortening the variable name to fit into 64 characters
+
+for ii = 1:numel(patientIDs1)
+    i = patientIDs1(ii);
+    j = sessionNumbers1(ii);
+    ages1 = [ages1;patients{i}.salgot.ageAtOnset];
+    isMale1 = [isMale1; patients{i}.salgot.sex==1];
+    isRightHanded1 = [isRightHanded1; patients{i}.salgot.handedness==1];
+    isParalyticArmRight1 = [isParalyticArmRight1; patients{i}.salgot.paralyticArm==1];
+    if ~gf.isempty('patients{i}.salgot.length') && isnumeric(patients{i}.salgot.length)
+    height1 = [height1;patients{i}.salgot.length];
+    else
+    height1 = [height1; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.weight') && isnumeric(patients{i}.salgot.weight)
+    weight1 = [weight1;patients{i}.salgot.weight];
+    else
+    weight1 = [weight1; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.CVSA_dicho_new') && isnumeric(patients{i}.salgot.CVSA_dicho_new)
+    isIschemic1 = [isIschemic1; patients{i}.salgot.CVSA_dicho_new==1];
+    else
+    isIschemic1 = [isIschemic1; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.NIHSSarm_new') && isnumeric(patients{i}.salgot.NIHSSarm_new)
+    NIHSSArm1 = [NIHSSArm1;patients{i}.salgot.NIHSSarm_new]; 
+    else
+    NIHSSArm1 = [NIHSSArm1;NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.OXFORD_new') && isnumeric(patients{i}.salgot.OXFORD_new)
+    oxford1 = [oxford1;patients{i}.salgot.OXFORD_new];
+    else
+    oxford1 = [oxford1;NaN];
+    end
+    FMscores1 = [FMscores1;patients{i}.sessions{j}.salgot.FMtotal];
+    FMCategoryShoulderElbowForearm1 = [FMCategoryShoulderElbowForearm1;patients{i}.sessions{j}.salgot.FMovre];
+    FMCategoryWrist1 = [FMCategoryWrist1;patients{i}.sessions{j}.salgot.FMhand];
+    FMCategoryHand1 = [FMCategoryHand1;patients{i}.sessions{j}.salgot.FMfingrar];
+    FMCategoryCoordination1 = [FMCategoryCoordination1;patients{i}.sessions{j}.salgot.FMkoord];
+    FMCategorySensation1 = [FMCategorySensation1;patients{i}.sessions{j}.salgot.sens];
+    FMCategoryPassiveJointMotion1 = [FMCategoryPassiveJointMotion1;patients{i}.sessions{j}.salgot.passivROM];
+    FMCategoryPain1 = [FMCategoryPain1;patients{i}.sessions{j}.salgot.smarta];
+    ARATtotal1 = [ARATtotal1;patients{i}.sessions{j}.salgot.ARATtotal];
+    
+    %%FMscores = [FMscores;patients{i}.sessions{j}.salgot.FMtotal];%%Comment this line while sorting data for healthy (patientIDsPerType{4})
+    durationPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration'; %%For healthy, change to NAUE.
+    velMeanPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Avg_Velocity';
+    HPRPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.HPR';
+    nZeroTouchingPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.nZeroTouching';
+    velPeakPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak';
+    velPeakPercentPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent';
+    accelerationMaxPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax';
+    straightLineDistancePerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Straight_Distance';
+    timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop';
+    percentTimeBeforeStopPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop';
+    timeAfterFirstCompleteStopPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop';
+    percentTimeAfterStopPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop';
+end
+
+duration1 = [durationPerPatientPerParameterPerSegment1];
+durationAllSegmentTypes1 = [(mean((duration1(:,[SmallSegments])),2)),  (mean((duration1(:,[MediumSegments])),2)), ...
+    mean((duration1(:,[LargeSegments])),2), mean(duration1(:,3:33),2)];  %%Small segments, medium segments, large segments and all segments
+
+velMean1 = [velMeanPerPatientPerParameterPerSegment1];
+velMeanAllSegmentTypes1 = [(mean((velMean1(:,[SmallSegments])),2)),  (mean((velMean1(:,[MediumSegments])),2)), ...
+    mean((velMean1(:,[LargeSegments])),2), mean(velMean1(:,3:33),2)]; 
+
+HPR1 = [HPRPerPatientPerParameterPerSegment1];
+HPRAllSegmentTypes1 = [(mean((HPR1(:,[SmallSegments])),2)),  (mean((HPR1(:,[MediumSegments])),2)), ...
+    mean((HPR1(:,[LargeSegments])),2), mean(HPR1(:,3:33),2)]; 
+
+velPeak1 = [velPeakPerPatientPerParameterPerSegment1];
+velPeakAllSegmentTypes1 = [(mean((velPeak1(:,[SmallSegments])),2)),  (mean((velPeak1(:,[MediumSegments])),2)), ...
+    mean((velPeak1(:,[LargeSegments])),2), mean(velPeak1(:,3:33),2)]; 
+
+velPeakPercent1 = [velPeakPercentPerPatientPerParameterPerSegment1];
+velPeakPercentAllSegmentTypes1 = [(mean((velPeakPercent1(:,[SmallSegments])),2)),  (mean((velPeakPercent1(:,[MediumSegments])),2)), ...
+    mean((velPeakPercent1(:,[LargeSegments])),2), mean(velPeakPercent1(:,3:33),2)]; 
+
+accelerationMax1 = [accelerationMaxPerPatientPerParameterPerSegment1];
+accelerationMaxAllSegmentTypes1 = [(mean((accelerationMax1(:,[SmallSegments])),2)),  (mean((accelerationMax1(:,[MediumSegments])),2)), ...
+    mean((accelerationMax1(:,[LargeSegments])),2), mean(accelerationMax1(:,3:33),2)]; 
+
+nZeroTouching1 = [nZeroTouchingPerPatientPerParameterPerSegment1];
+nZeroTouchingAllSegmentTypes1 = [(mean((nZeroTouching1(:,[SmallSegments])),2)),  (mean((nZeroTouching1(:,[MediumSegments])),2)), ...
+    mean((nZeroTouching1(:,[LargeSegments])),2), mean(nZeroTouching1(:,3:33),2)]; 
+
+timeBeforeFirstCompleteStop1 = [timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment1];
+timeBeforeFirstCompleteStopAllSegmentTypes1 = [(mean((timeBeforeFirstCompleteStop1(:,[SmallSegments])),2)),  (mean((timeBeforeFirstCompleteStop1(:,[MediumSegments])),2)), ...
+    mean((timeBeforeFirstCompleteStop1(:,[LargeSegments])),2), mean(timeBeforeFirstCompleteStop1(:,3:33),2)]; 
+
+percentageOfTimeBeforeFirstCompleteStop1 = [percentTimeBeforeStopPerPatientPerParameterPerSegment1];
+percentageOfTimeBeforeFirstCompleteStopAllSegmentTypes1 = [(mean((percentageOfTimeBeforeFirstCompleteStop1(:,[SmallSegments])),2)),  (mean((percentageOfTimeBeforeFirstCompleteStop1(:,[MediumSegments])),2)), ...
+    mean((percentageOfTimeBeforeFirstCompleteStop1(:,[LargeSegments])),2), mean(percentageOfTimeBeforeFirstCompleteStop1(:,3:33),2)]; 
+
+timeAfterFirstCompleteStop1 = [timeAfterFirstCompleteStopPerPatientPerParameterPerSegment1];
+timeAfterFirstCompleteStopAllSegmentTypes1 = [(mean((timeAfterFirstCompleteStop1(:,[SmallSegments])),2)),  (mean((timeAfterFirstCompleteStop1(:,[MediumSegments])),2)), ...
+    mean((timeAfterFirstCompleteStop1(:,[LargeSegments])),2), mean(timeAfterFirstCompleteStop1(:,3:33),2)]; 
+
+percentageOfTimeAfterFirstCompleteStop1 = [percentTimeAfterStopPerPatientPerParameterPerSegment1];
+percentageOfTimeAfterFirstCompleteStopAllSegmentTypes1 = [(mean((percentageOfTimeAfterFirstCompleteStop1(:,[SmallSegments])),2)),  (mean((percentageOfTimeAfterFirstCompleteStop1(:,[MediumSegments])),2)), ...
+    mean((percentageOfTimeAfterFirstCompleteStop1(:,[LargeSegments])),2), mean(percentageOfTimeAfterFirstCompleteStop1(:,3:33),2)]; 
+
+sortedDataModerate = [patientIDs1, sessionNumbers1, ages1, isMale1,isRightHanded1,height1,weight1,isParalyticArmRight1,isIschemic1,NIHSSArm1,...
+   oxford1, FMscores1, FMCategoryShoulderElbowForearm1, FMCategoryWrist1, FMCategoryHand1, FMCategoryCoordination1, FMCategorySensation1,...
+   FMCategoryPassiveJointMotion1, FMCategoryPain1, ARATtotal1,  durationAllSegmentTypes1, velMeanAllSegmentTypes1, HPRAllSegmentTypes1, velPeakAllSegmentTypes1,... 
+    velPeakPercentAllSegmentTypes1, accelerationMaxAllSegmentTypes1, nZeroTouchingAllSegmentTypes1, timeBeforeFirstCompleteStopAllSegmentTypes1, percentageOfTimeBeforeFirstCompleteStopAllSegmentTypes1, timeAfterFirstCompleteStopAllSegmentTypes1, percentageOfTimeAfterFirstCompleteStopAllSegmentTypes1];
+
+%%PatientIDs, SessionNumbers, meanDurationOfAllSmallSegments,
+%%meanDurationofAllMediumSegments, meanDurationofAllLargeSegments,
+%%meanDurationofAllAllSegments, etc, continuing with meanVelocity , HPR
+%%etc..
+
+%%%%%%%%%%%%%%%%%%For mild
+%%%%%%%%%%%%%%%%%%stroke%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+patientIDs2 = cat(1,patientsMeta.FM.patientIDsPerType{2}); %%Change the patient type here, % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy
+sessionNumbers2 = cat(1,patientsMeta.FM.sessionNumbersPerType{2}); %Change patient type here ALSO, also change affected UE to UE{2} in line 22-28.
+ages2 = [];
+isMale2 = [];
+isRightHanded2 = [];
+height2 = [];
+weight2 = [];
+isParalyticArmRight2 = [];
+isIschemic2 = [];
+NIHSSArm2 = [];
+oxford2 = [];
+FMscores2 = [];
+FMCategoryShoulderElbowForearm2 = [];
+FMCategoryWrist2 = [];
+FMCategoryHand2 = [];
+FMCategoryCoordination2 = [];
+FMCategorySensation2 = [];
+FMCategoryPassiveJointMotion2 = [];
+FMCategoryPain2 = [];
+ARATtotal2 = [];
+durationPerPatientPerParameterPerSegment2 = [];
+velMeanPerPatientPerParameterPerSegment2 = [];
+HPRPerPatientPerParameterPerSegment2 = [];
+nZeroTouchingPerPatientPerParameterPerSegment2 = [];
+velPeakPerPatientPerParameterPerSegment2 = [];
+velPeakPercentPerPatientPerParameterPerSegment2 = [];
+accelerationMaxPerPatientPerParameterPerSegment2 = [];
+straightLineDistancePerPatientPerParameterPerSegment2 = [];
+timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment2 = [];
+percentTimeBeforeStopPerPatientPerParameterPerSegment2 = [];
+timeAfterFirstCompleteStopPerPatientPerParameterPerSegment2 = [];
+percentTimeAfterStopPerPatientPerParameterPerSegment2 = [];
+
+for ii = 1:numel(patientIDs2)
+    i = patientIDs2(ii);
+    j = sessionNumbers2(ii);
+    ages2 = [ages2;patients{i}.salgot.ageAtOnset];
+    isMale2 = [isMale2; patients{i}.salgot.sex==1];
+    isRightHanded2 = [isRightHanded2; patients{i}.salgot.handedness==1];
+    isParalyticArmRight2 = [isParalyticArmRight2; patients{i}.salgot.paralyticArm==1];
+    if ~gf.isempty('patients{i}.salgot.length') && isnumeric(patients{i}.salgot.length)
+    height2 = [height2;patients{i}.salgot.length];
+    else
+    height2 = [height2; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.weight') && isnumeric(patients{i}.salgot.weight)
+    weight2 = [weight2;patients{i}.salgot.weight];
+    else
+    weight2 = [weight2; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.CVSA_dicho_new') && isnumeric(patients{i}.salgot.CVSA_dicho_new)
+    isIschemic2 = [isIschemic2; patients{i}.salgot.CVSA_dicho_new==1];
+    else
+    isIschemic2 = [isIschemic2; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.NIHSSarm_new') && isnumeric(patients{i}.salgot.NIHSSarm_new)
+    NIHSSArm2 = [NIHSSArm2;patients{i}.salgot.NIHSSarm_new]; 
+    else
+    NIHSSArm2 = [NIHSSArm2;NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.OXFORD_new') && isnumeric(patients{i}.salgot.OXFORD_new)
+    oxford2 = [oxford2;patients{i}.salgot.OXFORD_new];
+    else
+    oxford2 = [oxford2;NaN];
+    end
+    FMscores2 = [FMscores2;patients{i}.sessions{j}.salgot.FMtotal];
+    FMCategoryShoulderElbowForearm2 = [FMCategoryShoulderElbowForearm2;patients{i}.sessions{j}.salgot.FMovre];
+    FMCategoryWrist2 = [FMCategoryWrist2;patients{i}.sessions{j}.salgot.FMhand];
+    FMCategoryHand2 = [FMCategoryHand2;patients{i}.sessions{j}.salgot.FMfingrar];
+    FMCategoryCoordination2 = [FMCategoryCoordination2;patients{i}.sessions{j}.salgot.FMkoord];
+    FMCategorySensation2 = [FMCategorySensation2;patients{i}.sessions{j}.salgot.sens];
+    FMCategoryPassiveJointMotion2 = [FMCategoryPassiveJointMotion2;patients{i}.sessions{j}.salgot.passivROM];
+    FMCategoryPain2 = [FMCategoryPain2;patients{i}.sessions{j}.salgot.smarta];
+    ARATtotal2 = [ARATtotal2;patients{i}.sessions{j}.salgot.ARATtotal];
+    durationPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration'; %%For healthy, change to NAUE.
+    velMeanPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Avg_Velocity';
+    HPRPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.HPR';
+    nZeroTouchingPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.nZeroTouching';
+    velPeakPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak';
+    velPeakPercentPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent';
+    accelerationMaxPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax';
+    straightLineDistancePerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Straight_Distance';
+    timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.timeBeforeFirstCompleteStop';
+    percentTimeBeforeStopPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop';
+    timeAfterFirstCompleteStopPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.timeAfterFirstCompleteStop';
+    percentTimeAfterStopPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop';
+end
+
+duration2 = [durationPerPatientPerParameterPerSegment2];
+durationAllSegmentTypes2 = [(mean((duration2(:,[SmallSegments])),2)),  (mean((duration2(:,[MediumSegments])),2)), ...
+    mean((duration2(:,[LargeSegments])),2), mean(duration2(:,3:33),2)];  %%Small segments, medium segments, large segments and all segments
+
+velMean2 = [velMeanPerPatientPerParameterPerSegment2];
+velMeanAllSegmentTypes2 = [(mean((velMean2(:,[SmallSegments])),2)),  (mean((velMean2(:,[MediumSegments])),2)), ...
+    mean((velMean2(:,[LargeSegments])),2), mean(velMean2(:,3:33),2)]; 
+
+HPR2 = [HPRPerPatientPerParameterPerSegment2];
+HPRAllSegmentTypes2 = [(mean((HPR2(:,[SmallSegments])),2)),  (mean((HPR2(:,[MediumSegments])),2)), ...
+    mean((HPR2(:,[LargeSegments])),2), mean(HPR2(:,3:33),2)]; 
+
+velPeak2 = [velPeakPerPatientPerParameterPerSegment2];
+velPeakAllSegmentTypes2 = [(mean((velPeak2(:,[SmallSegments])),2)),  (mean((velPeak2(:,[MediumSegments])),2)), ...
+    mean((velPeak2(:,[LargeSegments])),2), mean(velPeak2(:,3:33),2)]; 
+
+velPeakPercent2 = [velPeakPercentPerPatientPerParameterPerSegment2];
+velPeakPercentAllSegmentTypes2 = [(mean((velPeakPercent2(:,[SmallSegments])),2)),  (mean((velPeakPercent2(:,[MediumSegments])),2)), ...
+    mean((velPeakPercent2(:,[LargeSegments])),2), mean(velPeakPercent2(:,3:33),2)]; 
+
+accelerationMax2 = [accelerationMaxPerPatientPerParameterPerSegment2];
+accelerationMaxAllSegmentTypes2 = [(mean((accelerationMax2(:,[SmallSegments])),2)),  (mean((accelerationMax2(:,[MediumSegments])),2)), ...
+    mean((accelerationMax2(:,[LargeSegments])),2), mean(accelerationMax2(:,3:33),2)]; 
+
+nZeroTouching2 = [nZeroTouchingPerPatientPerParameterPerSegment2];
+nZeroTouchingAllSegmentTypes2 = [(mean((nZeroTouching2(:,[SmallSegments])),2)),  (mean((nZeroTouching2(:,[MediumSegments])),2)), ...
+    mean((nZeroTouching2(:,[LargeSegments])),2), mean(nZeroTouching2(:,3:33),2)]; 
+
+timeBeforeFirstCompleteStop2 = [timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment2];
+timeBeforeFirstCompleteStopAllSegmentTypes2 = [(mean((timeBeforeFirstCompleteStop2(:,[SmallSegments])),2)),  (mean((timeBeforeFirstCompleteStop2(:,[MediumSegments])),2)), ...
+    mean((timeBeforeFirstCompleteStop2(:,[LargeSegments])),2), mean(timeBeforeFirstCompleteStop2(:,3:33),2)]; 
+
+percentageOfTimeBeforeFirstCompleteStop2 = [percentTimeBeforeStopPerPatientPerParameterPerSegment2];
+percentageOfTimeBeforeFirstCompleteStopAllSegmentTypes2 = [(mean((percentageOfTimeBeforeFirstCompleteStop2(:,[SmallSegments])),2)),  (mean((percentageOfTimeBeforeFirstCompleteStop2(:,[MediumSegments])),2)), ...
+    mean((percentageOfTimeBeforeFirstCompleteStop2(:,[LargeSegments])),2), mean(percentageOfTimeBeforeFirstCompleteStop2(:,3:33),2)]; 
+
+timeAfterFirstCompleteStop2 = [timeAfterFirstCompleteStopPerPatientPerParameterPerSegment2];
+timeAfterFirstCompleteStopAllSegmentTypes2 = [(mean((timeAfterFirstCompleteStop2(:,[SmallSegments])),2)),  (mean((timeAfterFirstCompleteStop2(:,[MediumSegments])),2)), ...
+    mean((timeAfterFirstCompleteStop2(:,[LargeSegments])),2), mean(timeAfterFirstCompleteStop2(:,3:33),2)]; 
+
+percentageOfTimeAfterFirstCompleteStop2 = [percentTimeAfterStopPerPatientPerParameterPerSegment2];
+percentageOfTimeAfterFirstCompleteStopAllSegmentTypes2 = [(mean((percentageOfTimeAfterFirstCompleteStop2(:,[SmallSegments])),2)),  (mean((percentageOfTimeAfterFirstCompleteStop2(:,[MediumSegments])),2)), ...
+    mean((percentageOfTimeAfterFirstCompleteStop2(:,[LargeSegments])),2), mean(percentageOfTimeAfterFirstCompleteStop2(:,3:33),2)]; 
+
+sortedDataMild = [patientIDs2, sessionNumbers2, ages2, isMale2,isRightHanded2,height2,weight2,isParalyticArmRight2,isIschemic2,NIHSSArm2,...
+   oxford2, FMscores2, FMCategoryShoulderElbowForearm2, FMCategoryWrist2, FMCategoryHand2, FMCategoryCoordination2, FMCategorySensation2,...
+   FMCategoryPassiveJointMotion2, FMCategoryPain2, ARATtotal2,  durationAllSegmentTypes2, velMeanAllSegmentTypes2, HPRAllSegmentTypes2, velPeakAllSegmentTypes2,... 
+    velPeakPercentAllSegmentTypes2, accelerationMaxAllSegmentTypes2, nZeroTouchingAllSegmentTypes2, timeBeforeFirstCompleteStopAllSegmentTypes2,percentageOfTimeBeforeFirstCompleteStopAllSegmentTypes2, timeAfterFirstCompleteStopAllSegmentTypes2,percentageOfTimeAfterFirstCompleteStopAllSegmentTypes2];
+
+%%PatientIDs, SessionNumbers, meanDurationOfAllSmallSegments,
+%%meanDurationofAllMediumSegments, meanDurationofAllLargeSegments,
+%%meanDurationofAllAllSegments, etc, continuing with meanVelocity , HPR
+%%etc..
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%For healthy individuals, Non affected UE%%%%%%%%%%%%%%%%%%%%%%%%%
+
+patientIDs = cat(1,patientsMeta.FM.patientIDsPerType{4}); % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy NAUE
+sessionNumbers = cat(1,patientsMeta.FM.sessionNumbersPerType{4}); %Change patient type here ALSO, also change affected UE to UE{2} in line 22-28.
+ages = [];
+isMale = [];
+isRightHanded = [];
+height = [];
+weight = [];
+isParalyticArmRight = NaN((numel(patientIDs)),1);
+isIschemic = NaN((numel(patientIDs)),1);
+NIHSSArm = NaN((numel(patientIDs)),1);
+oxford = NaN((numel(patientIDs)),1);
+FMscores = NaN((numel(patientIDs)),1);
+FMCategoryShoulderElbowForearm = NaN((numel(patientIDs)),1);
+FMCategoryWrist = NaN((numel(patientIDs)),1);
+FMCategoryHand = NaN((numel(patientIDs)),1);
+FMCategoryCoordination = NaN((numel(patientIDs)),1);
+FMCategorySensation = NaN((numel(patientIDs)),1);
+FMCategoryPassiveJointMotion = NaN((numel(patientIDs)),1);
+FMCategoryPain = NaN((numel(patientIDs)),1);
+ARATtotal = NaN((numel(patientIDs)),1);
+durationPerPatientPerParameterPerSegment = [];
+velMeanPerPatientPerParameterPerSegment = [];
+HPRPerPatientPerParameterPerSegment = [];
+nZeroTouchingPerPatientPerParameterPerSegment = [];
+velPeakPerPatientPerParameterPerSegment = [];
+velPeakPercentPerPatientPerParameterPerSegment = [];
+accelerationMaxPerPatientPerParameterPerSegment = [];
+straightLineDistancePerPatientPerParameterPerSegment = [];
+timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment = [];
+percentTimeBeforeStopPerPatientPerParameterPerSegment = [];
+timeAfterFirstCompleteStopPerPatientPerParameterPerSegment = [];
+percentTimeAfterStopPerPatientPerParameterPerSegment = [];
+
+
+for ii = 1:numel(patientIDs)
+    i = patientIDs(ii);
+    j = sessionNumbers(ii);
+    ages = [ages;patients{i}.salgot.ageAtOnset];
+    isMale = [isMale; patients{i}.salgot.sex==1];
+    isRightHanded = [isRightHanded; patients{i}.salgot.handedness==1];
+    height = [height;patients{i}.salgot.length];
+    weight = [weight;patients{i}.salgot.weight];
+    %%FMscores = [FMscores;patients{i}.sessions{j}.salgot.FMtotal];%%Comment this line while sorting data for healthy (patientIDsPerType{4})
+    durationPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration'; %%For healthy, change to NAUE.
+    velMeanPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.Avg_Velocity';
+    HPRPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.HPR';
+    nZeroTouchingPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.nZeroTouching';
+    velPeakPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak';
+    velPeakPercentPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeakPercent';
+    accelerationMaxPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.accelerationMax';
+    straightLineDistancePerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.Straight_Distance';
+    timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.timeBeforeFirstCompleteStop';
+    percentTimeBeforeStopPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeBeforeFirstCompleteStop';
+    timeAfterFirstCompleteStopPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.timeAfterFirstCompleteStop';
+    percentTimeAfterStopPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.percentageOfTimeAfterFirstCompleteStop';
+end
+
+duration = durationPerPatientPerParameterPerSegment;
+durationAllSegmentTypes = [(mean((duration(:,[SmallSegments])),2)),  (mean((duration(:,[MediumSegments])),2)), ...
+    mean((duration(:,[LargeSegments])),2), mean(duration(:,3:33),2)];  %%Small segments, medium segments, large segments and all segments
+
+velMean = velMeanPerPatientPerParameterPerSegment;
+velMeanAllSegmentTypes = [(mean((velMean(:,[SmallSegments])),2)),  (mean((velMean(:,[MediumSegments])),2)), ...
+    mean((velMean(:,[LargeSegments])),2), mean(velMean(:,3:33),2)]; 
+
+HPR = HPRPerPatientPerParameterPerSegment;
+HPRAllSegmentTypes = [(mean((HPR(:,[SmallSegments])),2)),  (mean((HPR(:,[MediumSegments])),2)), ...
+    mean((HPR(:,[LargeSegments])),2), mean(HPR(:,3:33),2)]; 
+
+velPeak = velPeakPerPatientPerParameterPerSegment;
+velPeakAllSegmentTypes = [(mean((velPeak(:,[SmallSegments])),2)),  (mean((velPeak(:,[MediumSegments])),2)), ...
+    mean((velPeak(:,[LargeSegments])),2), mean(velPeak(:,3:33),2)]; 
+
+velPeakPercent = velPeakPercentPerPatientPerParameterPerSegment;
+velPeakPercentAllSegmentTypes = [(mean((velPeakPercent(:,[SmallSegments])),2)),  (mean((velPeakPercent(:,[MediumSegments])),2)), ...
+    mean((velPeakPercent(:,[LargeSegments])),2), mean(velPeakPercent(:,3:33),2)]; 
+
+accelerationMax = accelerationMaxPerPatientPerParameterPerSegment;
+accelerationMaxAllSegmentTypes = [(mean((accelerationMax(:,[SmallSegments])),2)),  (mean((accelerationMax(:,[MediumSegments])),2)), ...
+    mean((accelerationMax(:,[LargeSegments])),2), mean(accelerationMax(:,3:33),2)]; 
+
+nZeroTouching = nZeroTouchingPerPatientPerParameterPerSegment;
+nZeroTouchingAllSegmentTypes = [(mean((nZeroTouching(:,[SmallSegments])),2)),  (mean((nZeroTouching(:,[MediumSegments])),2)), ...
+    mean((nZeroTouching(:,[LargeSegments])),2), mean(nZeroTouching(:,3:33),2)]; 
+
+timeBeforeFirstCompleteStop = [timeBeforeFirstCompleteStopPerPatientPerParameterPerSegment];
+timeBeforeFirstCompleteStopAllSegmentTypes = [(mean((timeBeforeFirstCompleteStop(:,[SmallSegments])),2)),  (mean((timeBeforeFirstCompleteStop(:,[MediumSegments])),2)), ...
+    mean((timeBeforeFirstCompleteStop(:,[LargeSegments])),2), mean(timeBeforeFirstCompleteStop(:,3:33),2)]; 
+
+percentageOfTimeBeforeFirstCompleteStop = [percentTimeBeforeStopPerPatientPerParameterPerSegment];
+percentageOfTimeBeforeFirstCompleteStopAllSegmentTypes = [(mean((percentageOfTimeBeforeFirstCompleteStop(:,[SmallSegments])),2)),  (mean((percentageOfTimeBeforeFirstCompleteStop(:,[MediumSegments])),2)), ...
+    mean((percentageOfTimeBeforeFirstCompleteStop(:,[LargeSegments])),2), mean(percentageOfTimeBeforeFirstCompleteStop(:,3:33),2)];
+
+timeAfterFirstCompleteStop = [timeAfterFirstCompleteStopPerPatientPerParameterPerSegment];
+timeAfterFirstCompleteStopAllSegmentTypes = [(mean((timeAfterFirstCompleteStop(:,[SmallSegments])),2)),  (mean((timeAfterFirstCompleteStop(:,[MediumSegments])),2)), ...
+    mean((timeAfterFirstCompleteStop(:,[LargeSegments])),2), mean(timeAfterFirstCompleteStop(:,3:33),2)]; 
+
+percentageOfTimeAfterFirstCompleteStop = [percentTimeAfterStopPerPatientPerParameterPerSegment];
+percentageOfTimeAfterFirstCompleteStopAllSegmentTypes = [(mean((percentageOfTimeAfterFirstCompleteStop(:,[SmallSegments])),2)),  (mean((percentageOfTimeAfterFirstCompleteStop(:,[MediumSegments])),2)), ...
+    mean((percentageOfTimeAfterFirstCompleteStop(:,[LargeSegments])),2), mean(percentageOfTimeAfterFirstCompleteStop(:,3:33),2)];
+
+sortedDataHealthy = [patientIDs, sessionNumbers, ages, isMale,isRightHanded,height,weight,isParalyticArmRight,isIschemic,NIHSSArm,...
+   oxford, FMscores, FMCategoryShoulderElbowForearm, FMCategoryWrist, FMCategoryHand, FMCategoryCoordination, FMCategorySensation,...
+   FMCategoryPassiveJointMotion, FMCategoryPain, ARATtotal,  durationAllSegmentTypes, velMeanAllSegmentTypes, HPRAllSegmentTypes, velPeakAllSegmentTypes,... 
+    velPeakPercentAllSegmentTypes, accelerationMaxAllSegmentTypes, nZeroTouchingAllSegmentTypes, timeBeforeFirstCompleteStopAllSegmentTypes,percentageOfTimeBeforeFirstCompleteStopAllSegmentTypes, timeBeforeFirstCompleteStopAllSegmentTypes,percentageOfTimeAfterFirstCompleteStopAllSegmentTypes];
+
+%%PatientIDs, SessionNumbers, meanDurationOfAllSmallSegments,
+%%meanDurationofAllMediumSegments, meanDurationofAllLargeSegments,
+%%meanDurationofAllAllSegments, etc, continuing with meanVelocity , HPR
+%%etc..
+sortedDataWhole = [sortedDataModerate; sortedDataMild];
+allSortedData = [sortedDataWhole; sortedDataHealthy]; %%moderate and mild are affected side. For healthy, non-dominant side is taken. Results are in the order : moderate, mild, healthy.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Analyse the data%%%%%%%%%%%%%%%%%%%
+
+%%Plot a histogram of all variables
+if(0)
+for i = 2:8;
+name = {'Nan','duration','avg velocity','HPR','velPeak','velPeakPercent','accelerationMax','nZeroTouching'}; %% in the output jpg files, histogram2 is duration, histogram3 is avg velocity and so on.
+
+histcompare = figure 
+subplot(2,2,1)
+histogram(sortedDataModerate(:,20+(4*i)),10)
+title('Moderate')
+
+
+subplot(2,2,2)
+histogram(sortedDataMild(:,20+(4*i)),10)
+title('Mild')
+
+
+subplot(2,2,3)
+histogram(sortedDataWhole(:,20+(4*i)),10)
+title('Whole')
+
+
+subplot(2,2,4)
+histogram(sortedDataHealthy(:,20+(4*i)),10)
+title('Healthy')
+
+saveas(histcompare,sprintf('histogram%d.jpg',i))
+
+end
+end
+
+%%Plot a boxplot of the variables, whole and healthy%%
+if(0)
+figure
+boxplot(sortedDataWhole(:,24))
+xlabel('Stroke-Duration')
+figure
+boxplot(sortedDataHealthy(:,24))
+xlabel('Healthy-Duration')
+figure
+boxplot(sortedDataWhole(:,24+4))
+xlabel('Stroke-Mean Velocity')
+figure
+boxplot(sortedDataHealthy(:,24+4))
+xlabel('Healthy-Mean Velocity')
+figure
+boxplot(sortedDataWhole(:,24+8))
+xlabel('Stroke-HPR')
+figure
+boxplot(sortedDataHealthy(:,24+8))
+xlabel('Healthy-HPR')
+figure
+boxplot(sortedDataWhole(:,24+12))
+xlabel('Stroke-Peak Velocity')
+figure
+boxplot(sortedDataHealthy(:,24+12))
+xlabel('Healthy-Peak Velocity')
+figure
+boxplot(sortedDataWhole(:,24+16))
+xlabel('Stroke-Peak Velocity Percent')
+figure
+boxplot(sortedDataHealthy(:,24+16))
+xlabel('Healthy-Peak Velocity Percent')
+figure
+boxplot(sortedDataWhole(:,24+20))
+xlabel('Stroke-Maximum Acceleration')
+figure
+boxplot(sortedDataHealthy(:,24+20))
+xlabel('Healthy-Maximum Acceleration')
+figure
+boxplot(sortedDataWhole(:,24+24))
+xlabel('Stroke-Number of Zero Touching')
+figure
+boxplot(sortedDataHealthy(:,24+24))
+xlabel('Healthy-Number of Zero Touching')
+end
+
+allDuration = [sortedDataWhole(:,24); sortedDataHealthy(:,24)];
+allVelMean = [sortedDataWhole(:,24+4); sortedDataHealthy(:,24+4)];
+allHPR = [sortedDataWhole(:,24+8); sortedDataHealthy(:,24+8)];
+allVelPeak = [sortedDataWhole(:,24+12); sortedDataHealthy(:,24+12)];
+allVelPeakPercent = [sortedDataWhole(:,24+16); sortedDataHealthy(:,24+16)];
+allAccelerationMax = [sortedDataWhole(:,24+20); sortedDataHealthy(:,24+20)];
+allNZeroTouching = [sortedDataWhole(:,24+24); sortedDataHealthy(:,24+24)];
+
+
+%%%Applying the two sample Kolmogorov-Smirnov test to determine if the
+%%%given two variables are from the same continuous distribution (not if
+%%%they are both normally distributed)
+hKstest2Moderate = [];
+pKstest2Moderate = [];
+hKstest2Mild = [];
+pKstest2Mild = [];
+hKstest2Whole = [];
+pKstest2Whole = [];
+hKstest2Healthy = [];
+pKstest2Healthy = [];
+
+if(0)
+for i = 21:48
+    [hKstest2ModerateMild(i), pKstest2ModerateMild(i)] = kstest2(sortedDataModerate(:,i), sortedDataMild(:,i));
+    [hKstest2HealthyWhole(i), pKstest2HealthyWhole(i)] = kstest2(sortedDataHealthy(:,i), sortedDataWhole(:,i));   
+end
+hpKstest2All = [hKstest2ModerateMild',pKstest2ModerateMild', hKstest2HealthyWhole', pKstest2HealthyWhole'];
+
+%%%Independent t test for determining whether the two groups have
+%%%significant differences between the MEANS
+
+for  i = 21:64
+[hModerateMildTtest{i},pModerateMildTtest{i},ciModerateMildTtest{i},statsModerateMildTtest{i}] = ttest2(sortedDataMild(:,i),sortedDataModerate(:,i));
+end
+summaryModerateMildTtest = [hModerateMildTtest(5:end)', pModerateMildTtest(5:end)',ciModerateMildTtest(5:end)',statsModerateMildTtest(5:end)'];
+
+for  i = 21:64
+[hHealthyMildTtest{i},pHealthyMildTtest{i},ciHealthyMildTtest{i},statsHealthyMildTtest{i}] = ttest2(sortedDataMild(:,i),sortedDataHealthy(:,i));
+end
+summaryHealthyMildTtest = [hHealthyMildTtest(5:end)', pHealthyMildTtest(5:end)',ciHealthyMildTtest(5:end)',statsHealthyMildTtest(5:end)'];
+
+%%
+
+%%%Mann Whitney's test for determining whether the wro groups have
+%%%significant differences between the MEDIANS
+
+for  i = 21:64
+[hModerateMildMannWhitney{i},pModerateMildMannWhitney{i},statsModerateMildMannWhitney{i}] = ranksum(sortedDataMild(:,i),sortedDataModerate(:,i),'alpha',0.017);
+end
+mannWhitneySummaryModerateMild = [hModerateMildMannWhitney(21:end)', pModerateMildMannWhitney(21:end)', statsModerateMildMannWhitney(21:end)'];
+
+for  i = 21:64
+[hHealthyMildMannWhitney{i},pHealthyMildMannWhitney{i},statsHealthyMildMannWhitney{i}] = ranksum(sortedDataMild(:,i),sortedDataHealthy(:,i),'alpha',0.017);
+end
+mannWhitneySummaryHealthyMild = [hHealthyMildMannWhitney(21:end)', pHealthyMildMannWhitney(21:end)',statsHealthyMildMannWhitney(21:end)'];
+
+for i = 21:64
+[hHealthyWholeMannWhitney{i},pHealthyWholeMannWhitney{i},statsHealthyWholeMannWhitney{i}] = ranksum(sortedDataWhole(:,i),sortedDataHealthy(:,i),'alpha',0.017);
+end
+mannWhitneySummaryHealthyWhole = [hHealthyWholeMannWhitney(21:end)', pHealthyWholeMannWhitney(21:end)',statsHealthyWholeMannWhitney(21:end)'];
+
+%%To find the correlations using Principle component analysis
+
+allDuration = [sortedDataWhole(:,24); sortedDataHealthy(:,24)];
+allVelMean = [sortedDataWhole(:,24+4); sortedDataHealthy(:,24+4)];
+allHPR = [sortedDataWhole(:,24+8); sortedDataHealthy(:,24+8)];
+allVelPeak = [sortedDataWhole(:,24+12); sortedDataHealthy(:,24+12)];
+allVelPeakPercent = [sortedDataWhole(:,24+16); sortedDataHealthy(:,24+16)];
+allAccelerationMax = [sortedDataWhole(:,24+20); sortedDataHealthy(:,24+20)];
+allNZeroTouching = [sortedDataWhole(:,24+24); sortedDataHealthy(:,24+24)];
+%%Note the order of the variables. The variable that shows most differences
+%%between the groups (Healthy-Whole) is put first and so on.
+allAllVariables = [allDuration, allNZeroTouching, allVelMean, allVelPeak, allHPR, allAccelerationMax, allVelPeakPercent];
+%%Do the PCA
+%%[PCAcoeff,PCAscore,PCAlatent,PCAtsquared,PCAexplained,PCAmu] = pca(allAllVariables);
+%%Find and plot PCA using a different, older command
+%%[PRINpc,PRINscore,PRINlatent,PRINtsquare] = princomp(allAllVariables);
+%%percentVariance = cumsum(PRINlatent)./sum(PRINlatent);
+%%biplot(PRINpc(:,1:2),'Scores',score(:,1:2),'VarLabels',...
+		%%{'X1' 'X2' 'X3' 'X4'})
+
+%%Find correlations between the groups
+corrDurationVelMean = corrcoef(allDuration,allVelMean); corrDurationVelPeak = corrcoef(allDuration, allVelPeak); corrDurationAccelerationMax = corrcoef(allDuration, allAccelerationMax); corrDurationNZeroTouching = corrcoef(allDuration,allNZeroTouching);
+corrDuration = [corrDurationVelMean; corrDurationVelPeak; corrDurationAccelerationMax; corrDurationNZeroTouching];
+corrVelMeanDuration = corrcoef(allVelMean,allDuration); corrAvgVelocityVelPeak = corrcoef(allVelMean,allVelPeak); corrAvgVelocityAccelerationMax = corrcoef(allVelMean, allAccelerationMax); corrAvgVelocityNZeroTouching = corrcoef(allVelMean,allNZeroTouching);
+corrVelMean = [corrVelMeanDuration; corrAvgVelocityVelPeak; corrAvgVelocityAccelerationMax;corrAvgVelocityNZeroTouching];
+corrVelPeakDuration = corrcoef(allVelPeak,allDuration); corrVelPeakAvgVelocity = corrcoef(allVelPeak, allVelMean); corrVelPeakAccelerationMax = corrcoef(allVelPeak, allAccelerationMax); corrVelPeakNZeroTouching = corrcoef(allVelPeak,allNZeroTouching);
+corrVelPeak = [corrVelPeakDuration;corrVelPeakAvgVelocity;corrVelPeakAccelerationMax; corrVelPeakNZeroTouching];
+corrAccelerationMaxDuration = corrcoef(allAccelerationMax,allDuration); corrAccelerationMaxAvgVelocity = corrcoef(allAccelerationMax,allVelMean); corrAccelerationMaxVelPeak = corrcoef(allVelMean, allVelPeak); corrAccelerationMaxNZeroTouching = corrcoef(allAccelerationMax,allNZeroTouching);
+corrAccelerationMax = [corrAccelerationMaxDuration; corrAccelerationMaxAvgVelocity; corrAccelerationMaxVelPeak; corrAccelerationMaxNZeroTouching];
+corrNZeroTouchingDuration = corrcoef(allNZeroTouching,allDuration); corrNZeroTouchingAvgVelocity = corrcoef(allNZeroTouching,allVelMean); corrNZeroTouchingVelPeak = corrcoef(allNZeroTouching, allVelPeak); corrNZeroTouchingAccelerationMax = corrcoef(allNZeroTouching, allAccelerationMax); 
+corrNZeroTouching = [corrNZeroTouchingDuration;corrNZeroTouchingAvgVelocity;corrNZeroTouchingVelPeak;corrNZeroTouchingAccelerationMax];
+
+%%Plots of segments that given highest correlation
+if(0)
+figure
+scatter(allDuration, allNZeroTouching); xlabel('Duration'); ylabel('Number of Zero Touching');
+figure
+scatter(allVelMean, allVelPeak); xlabel('Average Velocity'); ylabel('Peak Velocity');
+figure
+scatter(allVelPeak, allAccelerationMax); xlabel('Peak Velocity'); ylabel('Maximum Acceleration');
+end
+
+%%To find if there is a correlation between the straight line distance and
+%%other variables for affected arm in stroke, all recordings taken separately, not the mean 
+corrStraightLineDistanceDuration = corrcoef(([reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([reshape(durationPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(durationPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+corrStraightLineDistanceVelMean = corrcoef(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); 
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([reshape(velMeanPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(velMeanPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+%%HPR is already a ratio of straight line distance. Therefore, exclude HPR
+%%from correlation analysis.
+corrStraightLineDistanceHPR = corrcoef(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(HPRPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(HPRPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+corrStraightLineDistanceVelPeak = corrcoef(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(velPeakPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(velPeakPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+corrStraightLineDistanceVelPeakPercent = corrcoef(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(velPeakPercentPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(velPeakPercentPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+corrStraightLineDistanceAccelerationMax = corrcoef(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(accelerationMaxPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(accelerationMaxPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+corrStraightLineDistanceNZeroTouching = corrcoef(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([reshape(nZeroTouchingPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(nZeroTouchingPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+
+if(0)
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(durationPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(durationPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+xlabel('Straight Line Distance'); ylabel('Duration');
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); 
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(velMeanPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(velMeanPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+xlabel('Straight Line Distance'); ylabel('Average Velocity');
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(HPRPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(HPRPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+xlabel('Straight Line Distance'); ylabel('HPR');
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(velPeakPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(velPeakPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+xlabel('Straight Line Distance'); ylabel('Peak Velocity');
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1,[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2,[],1)]),([ reshape(velPeakPercentPerPatientPerParameterPerSegment1,[],1); reshape(velPeakPercentPerPatientPerParameterPerSegment2,[],1)]));
+xlabel('Straight Line Distance'); ylabel('Peak Velocity Percentage');
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(accelerationMaxPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(accelerationMaxPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+xlabel('Straight Line Distance'); ylabel('Maximum Acceleration');
+figure
+scatter(([ reshape(straightLineDistancePerPatientPerParameterPerSegment1(:,3:33),[],1); ...
+    reshape(straightLineDistancePerPatientPerParameterPerSegment2(:,3:33),[],1)]),([ reshape(nZeroTouchingPerPatientPerParameterPerSegment1(:,3:33),[],1); reshape(nZeroTouchingPerPatientPerParameterPerSegment2(:,3:33),[],1)]));
+xlabel('Straight Line Distance'); ylabel('Number of Zero Touching');
+end
+
+
+%%To find if there is a correlation between the straight line distance and
+%%other variables for right arm in healthy only, all variables taken
+%%separately, not the mean
+
+corrStraightLineDistanceDuration = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(durationPerPatientPerParameterPerSegment(:,3:33),[],1))); 
+corrStraightLineDistanceVelMean = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(velMeanPerPatientPerParameterPerSegment(:,3:33),[],1)));
+%%HPR is already a ratio of straight line distance. Therefore, exclude HPR
+%%from correlation analysis.
+corrStraightLineDistanceHPR = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(HPRPerPatientPerParameterPerSegment(:,3:33),[],1)));
+corrStraightLineDistanceVelPeak = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(velPeakPerPatientPerParameterPerSegment(:,3:33),[],1)));
+corrStraightLineDistanceVelPeakPercent = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(velPeakPercentPerPatientPerParameterPerSegment(:,3:33),[],1)));
+corrStraightLineDistanceAccelerationMax = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(accelerationMaxPerPatientPerParameterPerSegment(:,3:33),[],1)));
+corrStraightLineDistanceNZeroTouching = corrcoef((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(nZeroTouchingPerPatientPerParameterPerSegment(:,3:33),[],1)));
+
+if(0)
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(durationPerPatientPerParameterPerSegment(:,3:33),[],1))); 
+xlabel('Straight Line Distance'); ylabel('Duration');
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(velMeanPerPatientPerParameterPerSegment(:,3:33),[],1)));
+xlabel('Straight Line Distance'); ylabel('Mean Velocity');
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(HPRPerPatientPerParameterPerSegment(:,3:33),[],1)));
+xlabel('Straight Line Distance'); ylabel('HPR');
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(velPeakPerPatientPerParameterPerSegment(:,3:33),[],1)));
+xlabel('Straight Line Distance'); ylabel('Peak Velocity');
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(velPeakPercentPerPatientPerParameterPerSegment(:,3:33),[],1)));
+xlabel('Straight Line Distance'); ylabel('Peak Velocity Percentage');
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(accelerationMaxPerPatientPerParameterPerSegment(:,3:33),[],1)));
+xlabel('Straight Line Distance'); ylabel('Maximum Acceleration');
+figure
+scatter((reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)),(reshape(nZeroTouchingPerPatientPerParameterPerSegment(:,3:33),[],1)));
+xlabel('Straight Line Distance'); ylabel('Number of Zero Touching');
+end
+
+%%Stright line distance versus duration, according to Fitt's law
+if(0)
+corrFittsLaw = corrcoef((log2(2*(reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)/0.038))),(reshape(durationPerPatientPerParameterPerSegment(:,3:33),[],1)));
+scatter((log2(2*(reshape(straightLineDistancePerPatientPerParameterPerSegment(:,3:33),[],1)/0.038))),(reshape(durationPerPatientPerParameterPerSegment(:,3:33),[],1)))
+end
+%%%%%%%%%%%%%%%%%%%EXTRAS as asked by superrvisiors%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%EXTRAS as asked by supervisors%%%%%%%%%%%%%%
+[hAgeStrokeHealthyMannWhitney,pStrokeHealthyMannWhitney{i},statsStrokeHealthyMannWhitney{i}] = ranksum(sortedDataWhole(:,3),sortedDataModerate(:,3));
+
+if(0)
+%%Open 20170425_sortedDataHealthyAUE_Paper1.mat in /Results.
+
+%%%Paired sample t test for determining whether the two dependent groups have
+%%%significant differences between the means in healthy AUE and NAUE
+
+hHealthyAUENAUETtest = [];
+pHealthyAUENAUETtest = [];
+hHealthyAUENAUEWilcoxon = [];
+pHealthyAUENAUEWilcoxon = [];
+
+for  i = 21:64
+[hHealthyAUENAUETtest{i},pHealthyAUENAUETtest{i}] = ttest(sortedDataHealthy(:,i),sortedDataHealthyAUE(:,i),'Alpha',0.05); %%Error message appears if Results/sortedDataHealthyAUE is not loaded.
+end
+tTestSummaryHealthyAUENAUE = [hHealthyAUENAUETtest(21:end)', pHealthyAUENAUETtest(21:end)'];
+
+%%Wilcoxon's signed rank test for determining differences between medians
+%%in healthy AUE and NAUE.
+
+for  i = 21:64
+[hHealthyAUENAUEWilcoxon{i},pHealthyAUENAUEWilcoxon{i}] = signrank(sortedDataHealthy(:,i),sortedDataHealthyAUE(:,i),'Alpha',0.05);
+end
+wilcoxonSummaryHealthyAUENAUE = [hHealthyAUENAUEWilcoxon(5:end)', pHealthyAUENAUEWilcoxon(5:end)'];
+
+
+%%Open 20170428_sortedDataMildNAUE_Paper1 and
+%%20170428_sortedDataModerateNAUE_Paper1 
+%%Wilcoxon's signed rank test for determining differences between medians
+%%in mild stroke affected and non affected arm, moderate stroke affected
+%%and non affected arm
+
+hModerateAUENAUEWilcoxon = [];
+pModerateAUENAUEWilcoxon = [];
+hMildAUENAUEWilcoxon = [];
+pMildAUENAUEWilcoxon = [];
+
+for  i = 21:64
+[hModerateAUENAUEWilcoxon{i},pModerateAUENAUEWilcoxon{i}] = signrank(sortedDataModerate(:,i),sortedDataModerateNAUE(:,i),'Alpha',0.05); %%Error message appears if Results/sortedDataHealthyAUE is not loaded.
+end
+wilcoxonSummaryModerateAUENAUE = [hModerateAUENAUEWilcoxon(21:end)', pModerateAUENAUEWilcoxon(21:end)'];
+
+for  i = 21:64
+[hMildAUENAUEWilcoxon{i},pMildAUENAUEWilcoxon{i}] = signrank(sortedDataMild(:,i),sortedDataMildNAUE(:,i),'Alpha',0.05); %%Error message appears if Results/sortedDataHealthyAUE is not loaded.
+end
+wilcoxonSummaryMildAUENAUE = [hMildAUENAUEWilcoxon(21:end)', pMildAUENAUEWilcoxon(21:end)'];
+
+%%To find if there are significant differences between healthy non dominant
+%%and unaffected arm of stroke. Using MannWhitney
+hWholeNAUEHealthyMannWhitney = [];
+pWholeNAUEHealthyMannWhitney = [];
+sortedDataWholeNAUE = [sortedDataModerateNAUE; sortedDataMildNAUE];
+
+for  i = 21:64
+[hWholeNAUEHealthyMannWhitney{i},pWholeNAUEHealthyMannWhitney{i}] = ranksum(sortedDataWholeNAUE(:,i),sortedDataHealthy(:,i)); %%Error message appears if Results/sortedDataHealthyAUE is not loaded.
+end
+mannWhitneySummaryWholeNAUEHealthy = [hWholeNAUEHealthyMannWhitney(21:end)', pWholeNAUEHealthyMannWhitney(21:end)'];
+
+end
+
+%%To find if there are significant differences in height and weight between healthy and stroke. Using MannWhitney
+hWholeNAUEHealthyHeightMannWhitney = [];
+pWholeNAUEHealthyHeightMannWhitney = [];
+
+[hWholeNAUEHealthyHeightMannWhitney, pWholeNAUEHealthyHeightMannWhitney] = ranksum(sortedDataWhole(:,6),sortedDataHealthy(:,6));
+mannWhitneySummaryHeightWholeHealthy = [hWholeNAUEHealthyHeightMannWhitney,pWholeNAUEHealthyHeightMannWhitney];
+
+%%Calculating ARAT subscores
+if(0)
+ARATgrasp1 = [];
+ARATgrip1 = [];
+ARATpinch1 = [];
+ARATgross1 = [];
+ARATgrasp2 = [];
+ARATgrip2 = [];
+ARATpinch2 = [];
+ARATgross2 = [];
+
+
+for ii = 1:numel(patientIDs1)
+    i = patientIDs1(ii);
+    j = sessionNumbers1(ii);
+    if ~gf.isempty('patients{i}.sessions{j}.salgot.ARATkraft'),
+    ARATgrasp1 = [ARATgrasp1;patients{i}.sessions{j}.salgot.ARATkraft];
+    ARATgrip1 = [ARATgrip1;patients{i}.sessions{j}.salgot.ARATpreci];
+    ARATpinch1 = [ARATpinch1;patients{i}.sessions{j}.salgot.ARATpinc];
+    ARATgross1 = [ARATgross1;patients{i}.sessions{j}.salgot.ARATgrov];
+    else
+    ARATgrasp1 = [ARATgrasp1;NaN];
+    ARATgrip1 = [ARATgrip1;NaN];
+    ARATpinch1 = [ARATpinch1;NaN];
+    ARATgross1 = [ARATgross1;NaN];   
+    end
+end
+
+for ii = 1:numel(patientIDs2)
+    i = patientIDs2(ii);
+    j = sessionNumbers2(ii);
+    if ~gf.isempty('patients{i}.sessions{j}.salgot.ARATkraft'),
+    ARATgrasp2 = [ARATgrasp2;patients{i}.sessions{j}.salgot.ARATkraft];
+    ARATgrip2 = [ARATgrip2;patients{i}.sessions{j}.salgot.ARATpreci];
+    ARATpinch2 = [ARATpinch2;patients{i}.sessions{j}.salgot.ARATpinc];
+    ARATgross2 = [ARATgross2;patients{i}.sessions{j}.salgot.ARATgrov];
+    else
+    ARATgrasp2 = [ARATgrasp2;NaN];
+    ARATgrip2 = [ARATgrip2;NaN];
+    ARATpinch2 = [ARATpinch2;NaN];
+    ARATgross2 = [ARATgross2;NaN];   
+    end
+end
+
+ARATgrasp = [ARATgrasp1;ARATgrasp2];
+ARATgrip = [ARATgrip1; ARATgrip2];
+ARATpinch = [ARATpinch1; ARATpinch2];
+ARATgross = [ARATgross1; ARATgross2];
+ARATAll = [ARATgrasp,ARATgrip,ARATpinch,ARATgross];
+end
+    
+    
+
+%%Determine the sensitivity and specificity
+sortedDataAll = [sortedDataWhole;sortedDataHealthy];
+SensitivityMetric = sum(sortedDataWhole(:,48) > 4.50);
+
+
+
+if(0)
+x = patients{111}.sessions{4}.UE{1}.detailedData.x{25};
+y = patients{111}.sessions{4}.UE{1}.detailedData.y{25};
+z = patients{111}.sessions{4}.UE{1}.detailedData.z{25};
+plot3(x,y,z)
+hold on
+plot3(patients{111}.sessions{4}.UE{1}.detailedData.x{25}(1,1),patients{111}.sessions{4}.UE{1}.detailedData.y{25}(1,1),patients{111}.sessions{4}.UE{1}.detailedData.z{25}(1,1),'r*')
+end
+
+
+%%Find the percentage of times where there were no completestops%%
+totalNoCompleteStops = 43*33;
+totalNoCompleteStops1 = 33*33;
+totalNoCompleteStops2 = 34*33;
+percentageNoCompleteStops = sum(sum(percentageOfTimeAfterFirstCompleteStop == 0))/totalNoCompleteStops; %%For healthy
+percentageNoCompleteStops1 = sum(sum(percentageOfTimeAfterFirstCompleteStop1 == 0))/totalNoCompleteStops1; %% For moderate stroke
+percentageNoCompleteStops2 = sum(sum(percentageOfTimeAfterFirstCompleteStop2 == 0))/totalNoCompleteStops2; %% For mild stroke
+
+end
