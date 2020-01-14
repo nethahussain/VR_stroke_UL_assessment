@@ -1,0 +1,142 @@
+
+%%Move this file into Kinematics main folder and run it after patients.mat
+%%has been run.
+
+if(0)
+%%Code for right hand
+  
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedHogrepp'))
+  patients{i}.sessions{j}.salgot.VrGripRight = patients{i}.sessions{j}.salgot.VRbedHogrepp;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedHogrepp');
+end
+  end
+end
+
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRgreppHo'))      
+patients{i}.sessions{j}.salgot.VrGripRight = patients{i}.sessions{j}.salgot.VRgreppHo;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRgreppHo');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedhogrepp'))      
+patients{i}.sessions{j}.salgot.VrGripRight = patients{i}.sessions{j}.salgot.VRbedhogrepp;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedhogrepp');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedgreppho'))      
+patients{i}.sessions{j}.salgot.VrGripRight = patients{i}.sessions{j}.salgot.VRbedgreppho;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedgreppho');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedgreppHo'))      
+patients{i}.sessions{j}.salgot.VrGripRight = patients{i}.sessions{j}.salgot.VRbedgreppHo;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedgreppHo');
+end
+  end
+end
+
+%%Code for left hand
+
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedVagrepp'))
+  patients{i}.sessions{j}.salgot.VrGripLeft = patients{i}.sessions{j}.salgot.VRbedVagrepp;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedVagrepp');
+end
+  end
+end
+
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRgreppVa'))      
+patients{i}.sessions{j}.salgot.VrGripLeft = patients{i}.sessions{j}.salgot.VRgreppVa;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRgreppVa');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedvagrepp'))      
+patients{i}.sessions{j}.salgot.VrGripLeft = patients{i}.sessions{j}.salgot.VRbedvagrepp;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedvagrepp');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedgreppva'))      
+patients{i}.sessions{j}.salgot.VrGripLeft = patients{i}.sessions{j}.salgot.VRbedgreppva;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedgreppva');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.VRbedgreppVa'))      
+patients{i}.sessions{j}.salgot.VrGripLeft = patients{i}.sessions{j}.salgot.VRbedgreppVa;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'VRbedgreppVa');
+end
+  end
+end
+
+for i=1:225,
+  for   j = 1:9,
+if(~gf.isempty('patients{i}.sessions{j}.salgot.BRbedgreppva'))      
+patients{i}.sessions{j}.salgot.VrGripLeft = patients{i}.sessions{j}.salgot.BRbedgreppva;
+patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot,'BRbedgreppva');
+end
+  end
+end
+
+end
+
+
+ VrGripRight = [];
+ VrGripLeft = [];
+ 
+ patientID = (sortedDataWhole(:,1))';
+ sessionID = (sortedDataWhole(:,2))';
+ 
+for ii = 1:numel(patientID)
+    i = patientID(ii);
+    j = sessionID(ii);
+            if (~gf.isempty('patients{i}.sessions{j}.salgot.VrGripRight'))
+ VrGripRight = [VrGripRight; patients{i}.sessions{j}.salgot.VrGripRight];
+            end
+            if  (~gf.isempty('patients{i}.sessions{j}.salgot.VrGripLeft'))
+    VrGripLeft = [VrGripLeft; patients{i}.sessions{j}.salgot.VrGripLeft]; 
+            end
+end
+
+
+VrGripParalytic = [];
+for k = 1:numel(patientID)
+    if (sortedDataWhole(k,8)) == 1
+        VrGripParalytic(k) = VrGripRight(k)
+    elseif (sortedDataWhole(k,8)) == 0
+        VrGripParalytic(k) = VrGripLeft(k)
+    end
+end
+
+testVrGripParalytic = [sortedDataWhole(:,8),VrGripRight,VrGripLeft,VrGripParalytic']
