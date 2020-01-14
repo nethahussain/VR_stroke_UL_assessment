@@ -1,0 +1,110 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Draw 3D plot for hands movement
+%
+% -Example:
+%   motion3D(patients,[101,103],[2,3,4],1:10)
+%
+% -TODO:
+%   1. Fix bug: motion3D(patients,[101,103],2,2:10)
+%   2. Include nonAffected
+%   3. Plot 3D disk radius 0.038, height=0.001  {[x,y,z] = cylinder(); hold on; surf(0.038*x,0.038*y,0.001*z)}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+classdef motion3D
+
+properties
+    speedButtonText;
+end    
+    
+methods
+
+    function this = motion3D(patients,patientnumbers,sessions,segments)
+        fh = figure();
+        hax = axes();
+        %% Create buttons
+        pauseButton = uicontrol('Parent',fh,'Style', 'pushbutton', 'String', 'Pause/Play','Position', [20 10 80 20],'Callback', {@this.togglePause,hax}); 
+        global speedButtonText drawingSpeed;
+        minSpeed=0.1; maxSpeed = 10;
+        speedButton = uicontrol('Parent',fh,'Style', 'slider','Position', [120 5 100 20], ...
+            'Min',minSpeed,'Max',maxSpeed,'SliderStep',[0.1,1]/(maxSpeed-minSpeed),'Value',1,'Callback', {@this.changeSpeed,hax}); 
+        speedButtonText = uicontrol('Parent',fh,'Style','text','Position', [120 35 100 10],'String',['Speed = ',num2str(drawingSpeed)]);
+        %% Fetch values from inputted 'patients'
+        % Fetch 't'
+        tPerPatient = gf.congregate('patients{patientNumbers}.sessions{sessionNumbers}.UE{1}.detailedData.t{segments}','',2);    %% 4D matrix
+        tPerPatient = permute(tPerPatient,[4,3,1,2]);
+        tPerPatient = reshape(tPerPatient,[],numel(patientNumbers)*numel(sessionNumbers));                                      %% Convert it to 2D matrix
+        % Fetch 'x'
+        xPerPatient = gf.congregate('patients{patientNumbers}.sessions{sessionNumbers}.UE{1}.detailedData.x{segments}','',2);    %% 4D matrix
+        xPerPatient = permute(xPerPatient,[4,3,1,2]);
+        xPerPatient = reshape(xPerPatient,[],numel(patientNumbers)*numel(sessionNumbers));                                      %% Convert it to 2D matrix
+        % Fetch 'y'
+        yPerPatient = gf.congregate('patients{patientNumbers}.sessions{sessionNumbers}.UE{1}.detailedData.y{segments}','',2);    %% 4D matrix
+        yPerPatient = permute(yPerPatient,[4,3,1,2]);
+        yPerPatient = reshape(yPerPatient,[],numel(patientNumbers)*numel(sessionNumbers));                                      %% Convert it to 2D matrix
+        % Fetch 'z'
+        zPerPatient = gf.congregate('patients{patientNumbers}.sessions{sessionNumbers}.UE{1}.detailedData.z{segments}','',2);    %% 4D matrix
+        zPerPatient = permute(zPerPatient,[4,3,1,2]);
+        zPerPatient = reshape(zPerPatient,[],numel(patientNumbers)*numel(sessionNumbers));                                      %% Convert it to 2D matrix
+        % Draw
+        this.draw(tPerPatient,xPerPatient,yPerPatient,zPerPatient);      %% TODO
+    end
+    
+    function togglePause(this,hObj,event,ax)
+        global isPause;
+        isPause = ~isPause;
+    end
+    
+    function changeSpeed(this,hObj,event,ax)
+       global speedButtonText drawingSpeed;
+       drawingSpeed = get(hObj,'Value');
+       speedButtonText.String = ['Speed = ',num2str(drawingSpeed)];
+    end
+    
+    % Each column of 'tPerPatient','xPerPatient', ..etc corresponds to each patient
+    % NOTE:
+    %   1. Here each sessions is considered as a patient
+    function draw(this,tPerPatient,xPerPatient,yPerPatient,zPerPatient)
+        
+        nPatients = size(tPerPatient,2);
+        iPatientPerPatient = ones(size(tPerPatient,1),1)*[1:nPatients];
+        
+        [tAllSorted, tempSortIndex] = sort(tPerPatient(:));
+        tempSortIndex(isnan(tAllSorted)) = [];
+        tAllSorted(isnan(tAllSorted)) = [];
+        xAllSorted = xPerPatient(tempSortIndex);
+        yAllSorted = yPerPatient(tempSortIndex);
+        zAllSorted = zPerPatient(tempSortIndex);
+        iPatientSorted = iPatientPerPatient(tempSortIndex);
+
+        tAllSortedDiff = [0;diff(tAllSorted)];
+
+        %% -Create Canvas
+        colors = hsv(nPatients);
+        for iPatient = 1:nPatients
+            h(iPatient) = animatedline('Color',colors(iPatient,:));
+        end
+        xMin = min(xAllSorted); xMax = max(xAllSorted); 
+        yMin = min(yAllSorted); yMax = max(yAllSorted); 
+        zMin = min(zAllSorted); zMax = max(zAllSorted); 
+        axis([xMin xMax yMin yMax zMin zMax]); %// freeze axes
+        grid on;
+
+        %% -Start Plotting
+        global isPause;
+        isPause = false;
+        global drawingSpeed;
+        drawingSpeed = 1;       %% Place larger number for quick drawing.
+        for iPoint = 1:numel(tAllSorted)
+            pause(tAllSortedDiff(iPoint)/drawingSpeed);
+            while isPause, pause(2); end        %% -If 'PAUSE' button pressed
+            iPatient = iPatientSorted(iPoint);
+            addpoints(h(iPatient),xAllSorted(iPoint),yAllSorted(iPoint),zAllSorted(iPoint));
+        end
+
+    end    
+    
+
+end
+end
