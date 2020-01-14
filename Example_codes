@@ -1,0 +1,212 @@
+%%%%%%%% Examples
+
+%% To remove empty cells
+patientsNew = gf.squeeze(patients);
+    
+    
+%% Find peak velocities
+for i=1:225
+    for j=1:8
+        if(~gf.isempty('patients{i}.sessions{j}.affectedUE.detailedData.vel{33}'))
+            for k = 1:33
+                patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeak(k) = max(patients{i}.sessions{j}.affectedUE.detailedData.vel{k});
+            end
+            patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeak = (patients{i}.sessions{j}.affectedUE.pointtestPhases.velPeak)';
+        end
+    end
+end
+
+%% To create an array of cells 'velPeakPERSessionPerPatientPerSegment', with j^th cell containing j^th session, and each cell contains a 2D matrix with first column as patientIDs,
+%       and remaining 33 columns for peak velocities, after eliminating all missing sessions.  
+velPeakPerPatientPerSegmentPerSession = gf.congregate('patients{:}.sessions{:}.affectedUE.pointtestPhases.velPeak','',2);
+velPeakPerPatientPerSegmentPerSession = permute(velPeakPerPatientPerSegmentPerSession,[1,3,2]);
+for j = 1:8
+    velPeakPERSessionPerPatientPerSegment{j} = velPeakPerPatientPerSegmentPerSession(:,:,j);
+    velPeakPERSessionPerPatientPerSegment{j} = [[1:numel(patients)]', velPeakPERSessionPerPatientPerSegment{j}];  %% Prepending patient IDs as first column
+    rowToDelete = any(isnan(velPeakPERSessionPerPatientPerSegment{j}),2);
+    velPeakPERSessionPerPatientPerSegment{j}(rowToDelete,:) = [];
+end
+%% To save to .mat file
+% save('Results/20161105_patients.mat','patients')
+
+
+if(0)
+%% -Find number of elements
+for i=1:225
+    for j=1:8
+        if(~gf.isempty('patients{i}.sessions{j}.affectedUE.detailedData.t'))
+            n(i,j) = numel(patients{i}.sessions{j}.affectedUE.detailedData.t);
+        end
+    end
+end
+
+
+
+
+%% Find 32nd segment's end values
+for i=1:225, for j=1:8
+if(~gf.isempty('patients{i}.sessions{j}.affectedUE.detailedData.t{32}'))
+finalTime(i,j) = patients{i}.sessions{j}.affectedUE.detailedData.t{32}(end);
+end
+end,end
+
+ patientsNew = gf.squeeze(patients);
+end
+
+%% To rename the field 'session' to 'sessions' 
+  for i=1:225,
+if(~gf.isempty('patients{i}.session'))
+  patients{i}.sessions = patients{i}.session;
+  patients{i} = rmfield(patients{i},'session');
+end
+  end
+
+
+%% To find a header (for eg: 'length') index from a csv/xlsx file,
+gf.assign('DataFiles/salgot_en.xlsx','header','',1);
+gf.contains(header,'length')
+
+
+
+%% To fetch all patients,sessions, whose end time <150
+patientIDs = [];
+sessionIDs = [];
+startTimes = [];
+durations = [];
+    for i = 1:numel(patients)
+        if(~gf.isempty('patients{i}.sessions'))
+            for j = 1:numel(patients{i}.sessions)
+                if(~gf.isempty('patients{i}.sessions{j}.affectedUE.pointTestPhases.Start_Time'))
+                    if(patients{i}.sessions{j}.affectedUE.pointTestPhases.Start_Time(end)<150)
+                        startTimes = [startTimes;patients{i}.sessions{j}.affectedUE.pointTestPhases.Start_Time(end)];
+                        durations = [durations;patients{i}.sessions{j}.affectedUE.pointTestPhases.Duration'];
+                        patientIDs = [patientIDs;i];
+                        sessionIDs = [sessionIDs;j];
+                        break;
+                    end
+                end
+            end
+        end
+    end
+[patientIDs,sessionIDs,startTimes]
+
+
+
+%% To fetch patients who have performed Kinematics atleast once.
+patientIDsKinematics = [];
+    for i = 1:numel(patients)
+        if(~gf.isempty('patients{i}.sessions'))
+            for j = 1:numel(patients{i}.sessions)
+                if(~gf.isempty('patients{i}.sessions{j}.affectedUE') || ~gf.isempty('patients{i}.sessions{j}.nonAffectedUE'))
+                    patientIDsKinematics = [patientIDsKinematics;i];
+                    break;
+                end
+            end
+        end
+    end
+
+    
+%% Create a table with values inter-dispersed
+inputFilename = 'Results/20171219_patients_modifiedPaper1.mat';
+load(inputFilename);
+outputFilename = regexprep(inputFilename,'.mat$','.xlsx');
+
+patientIDs = cat(1,patientsMeta.FM.patientIDsPerType{1:2});
+sessionNumbers = cat(1,patientsMeta.FM.sessionNumbersPerType{1:2});
+for ii = 1:numel(patientIDs)
+    i = patientIDs(ii);
+    j = sessionNumbers(ii);
+    valuePerPatientPerParameterPerSegment(ii,1,:) = patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration';
+    valuePerPatientPerParameterPerSegment(ii,2,:) = patients{i}.sessions{j}.affectedUE.pointtestPhases.Avg_Velocity';
+    valuePerPatientPerParameterPerSegment(ii,3,:) = patients{i}.sessions{j}.affectedUE.pointtestPhases.nZeroTouching';
+end
+% Create table  (Note: If heading is required, add an input called ''VariableNames'' as a cell array of strings)
+tmp1 = reshape(valuePerPatientPerParameterPerSegment,size(valuePerPatientPerParameterPerSegment,1),[]);
+tmp2 = [patientIDs,sessionNumbers,tmp1];
+xlswrite(outputFilename,tmp2);
+
+
+
+
+%% To create a table outputs (mean & std)
+inputFilename = 'Results/20161214_patients_modifiedPaper1.mat';
+load(inputFilename);
+durationMeanPerSegmentTypePerPatientType = gf.congregate('patientsMeta.FM.FMdescriptionPerPatientTypePerSegmentType{:}{:}.affectedUE.duration.mean')';
+durationStdPerSegmentTypePerPatientType = gf.congregate('patientsMeta.FM.FMdescriptionPerPatientTypePerSegmentType{:}{:}.affectedUE.duration.std')';
+
+temp1 = cat(3,durationMeanPerSegmentTypePerPatientType,durationStdPerSegmentTypePerPatientType);
+
+temp2 = reshape(permute(temp1,[1,3,2]),size(temp1,1),[]);
+
+% Row Indices = {'Short-segment','Medium-segment','Long-segment'}
+% Col Indices = {'Moderate mean','Moderate std',  'Mild mean','Mild std',  'Whole mean','Whole std',  'Healthy mean','Healthy std',}
+
+
+
+
+%%To create a table of outputs, with small, medium and large segments
+%%sorted as vectors.
+
+patientIDs = cat(1,patientsMeta.FM.patientIDsPerType{1:2});
+sessionNumbers = cat(1,patientsMeta.FM.sessionNumbersPerType{1:2});
+for ii = 1:numel(patientIDs)
+    i = patientIDs(ii);
+    j = sessionNumbers(ii);
+    valuePerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'; %%Change the path of the variable here
+end
+SmallSegments = [5,6,7,10,11,12,18,19,23,24,25,30];
+MediumSegments = [3,9,13,15,16,17,21,22,27,28,29,31,32];
+LargeSegments = [2,4,8,14,20,26];
+tmp = mean[valuePerPatientPerParameterPerSegment];
+VariableSmallSegments = reshape((tmp(:,[SmallSegments])),[],1); %%A variable could be anything like, duration, velocity, nZeroTouching etc.
+VariableMediumSegments = reshape((tmp(:,[MediumSegments])),[],1);
+VariableLargeSegments = reshape((tmp(:,[LargeSegments])),[],1);
+VariableAllSegments = reshape(tmp,[],1)
+histogram(VariableSmallSegments)
+hold on
+histogram(VariableMediumSegments)
+%%histogram(VariableLargeSegments)
+%%legend ('Small','Medium','Large')
+
+%%For healthy participants
+patientHealthy = [501:524];
+for ii = 501:numel(patientHealthy)
+    i = patientIDs(ii);
+    j = sessionNumbers(ii);
+    valuePerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'; %%Change the path of the variable here
+end
+SmallSegments = [5,6,7,10,11,12,18,19,23,24,25,30];
+MediumSegments = [3,9,13,15,16,17,21,22,27,28,29,31,32];
+LargeSegments = [2,4,8,14,20,26];
+tmp = [valuePerPatientPerParameterPerSegment];
+VariableHealthySmallSegments = reshape((tmp(:,[SmallSegments])),[],1); %%A variable could be anything like, duration, velocity, nZeroTouching etc.
+VariableHealthyMediumSegments = reshape((tmp(:,[MediumSegments])),[],1);
+VariableHealthyLargeSegments = reshape((tmp(:,[LargeSegments])),[],1);
+VariableHealthyAllSegments = reshape(tmp,[],1)
+histogram(VariableHealthySmallSegments)
+%%hold on
+%%histogram(VariableHealthyMediumSegments)
+%%histogram(VariableLargeSegments)
+%%legend ('Small','Medium','Large')
+%%hold
+
+
+%% To create a table, with means of small, medium and large segments of all 68 participants
+
+patientIDs = cat(1,patientsMeta.FM.patientIDsPerType{1:2});
+sessionNumbers = cat(1,patientsMeta.FM.sessionNumbersPerType{1:2});
+for ii = 1:numel(patientIDs)
+    i = patientIDs(ii);
+    j = sessionNumbers(ii);
+    valuePerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.affectedUE.pointtestPhases.Duration'; %%Change the path of the variable here
+end
+SmallSegments = [5,6,7,10,11,12,18,19,23,24,25,30];
+MediumSegments = [3,9,13,15,16,17,21,22,27,28,29,31,32];
+LargeSegments = [2,4,8,14,20,26];
+tmp = [valuePerPatientPerParameterPerSegment];
+VariableSmallSegments = mean((tmp(:,[SmallSegments])),2); %%A variable could be anything like, duration, velocity, nZeroTouching etc.
+VariableMediumSegments = mean((tmp(:,[MediumSegments])),2);
+VariableLargeSegments = mean((tmp(:,[LargeSegments])),2);
+VariableAllSegments = mean(tmp,2);
+Variables = [VariableSmallSegments, VariableMediumSegments, VariableLargeSegments VariableAllSegments];
+
