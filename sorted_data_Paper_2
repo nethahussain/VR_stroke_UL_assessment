@@ -1,0 +1,384 @@
+%%REMINDER : Run Results_Paper_1 first, before running sortedData_Paper_1.
+%%sortedData_Paper_1 will not work without running REsults_Paper_1 first.
+
+%% To create a table, with means of small, medium and large segments of all 68 participants, for mild, moderate and healthy participants. 
+SmallSegments = [5,6,7,10,11,12,18,19,23,24,25,30];
+MediumSegments = [3,9,13,15,16,17,21,22,27,28,29,31,32];
+LargeSegments = [2,4,8,14,20,26];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%For moderate stroke
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+patientIDs1 = cat(1,patientsMeta.FM.patientIDsPerType{1}); %%Change the patient type here, % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy
+sessionNumbers1 = cat(1,patientsMeta.FM.sessionNumbersPerType{1}); %Change patient type here ALSO, also change affected UE to UE{2} in line 22-28.
+ages1 = [];
+isMale1 = [];
+isRightHanded1 = [];
+height1 = [];
+weight1 = [];
+isParalyticArmRight1 = [];
+isIschemic1 = [];
+NIHSSArm1 = [];
+oxford1 = [];
+FMscores1 = [];
+FMCategoryShoulderElbowForearm1 = [];
+FMCategoryWrist1 = [];
+FMCategoryHand1 = [];
+FMCategoryCoordination1 = [];
+FMCategorySensation1 = [];
+FMCategoryPassiveJointMotion1 = [];
+FMCategoryPain1 = [];
+ARATtotal1 = [];
+durationPerPatientPerParameterPerSegment1 = [];
+velMeanPerPatientPerParameterPerSegment1 = [];
+HPRPerPatientPerParameterPerSegment1 = [];
+nZeroTouchingPerPatientPerParameterPerSegment1 = [];
+velPeakPerPatientPerParameterPerSegment1 = [];
+velPeakPercentPerPatientPerParameterPerSegment1 = [];
+accelerationMaxPerPatientPerParameterPerSegment1 = [];
+straightLineDistancePerPatientPerParameterPerSegment1 = [];
+nPeaksPerPatientPerParameterPerSegment1 = [];
+
+
+for ii = 1:numel(patientIDs1)
+    i = patientIDs1(ii);
+    j = sessionNumbers1(ii);
+    ages1 = [ages1;patients{i}.salgot.ageAtOnset];
+    isMale1 = [isMale1; patients{i}.salgot.sex==1];
+    isRightHanded1 = [isRightHanded1; patients{i}.salgot.handedness==1];
+    isParalyticArmRight1 = [isParalyticArmRight1; patients{i}.salgot.paralyticArm==1];
+    if ~gf.isempty('patients{i}.salgot.length') && isnumeric(patients{i}.salgot.length)
+    height1 = [height1;patients{i}.salgot.length];
+    else
+    height1 = [height1; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.weight') && isnumeric(patients{i}.salgot.weight)
+    weight1 = [weight1;patients{i}.salgot.weight];
+    else
+    weight1 = [weight1; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.CVSA_dicho_new') && isnumeric(patients{i}.salgot.CVSA_dicho_new)
+    isIschemic1 = [isIschemic1; patients{i}.salgot.CVSA_dicho_new==1];
+    else
+    isIschemic1 = [isIschemic1; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.NIHSSarm_new') && isnumeric(patients{i}.salgot.NIHSSarm_new)
+    NIHSSArm1 = [NIHSSArm1;patients{i}.salgot.NIHSSarm_new]; 
+    else
+    NIHSSArm1 = [NIHSSArm1;NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.OXFORD_new') && isnumeric(patients{i}.salgot.OXFORD_new)
+    oxford1 = [oxford1;patients{i}.salgot.OXFORD_new];
+    else
+    oxford1 = [oxford1;NaN];
+    end
+    FMscores1 = [FMscores1;patients{i}.sessions{j}.salgot.FMtotal];
+    FMCategoryShoulderElbowForearm1 = [FMCategoryShoulderElbowForearm1;patients{i}.sessions{j}.salgot.FMovre];
+    FMCategoryWrist1 = [FMCategoryWrist1;patients{i}.sessions{j}.salgot.FMhand];
+    FMCategoryHand1 = [FMCategoryHand1;patients{i}.sessions{j}.salgot.FMfingrar];
+    FMCategoryCoordination1 = [FMCategoryCoordination1;patients{i}.sessions{j}.salgot.FMkoord];
+    FMCategorySensation1 = [FMCategorySensation1;patients{i}.sessions{j}.salgot.sens];
+    FMCategoryPassiveJointMotion1 = [FMCategoryPassiveJointMotion1;patients{i}.sessions{j}.salgot.passivROM];
+    FMCategoryPain1 = [FMCategoryPain1;patients{i}.sessions{j}.salgot.smarta];
+    ARATtotal1 = [ARATtotal1;patients{i}.sessions{j}.salgot.ARATtotal];
+    
+    %%FMscores = [FMscores;patients{i}.sessions{j}.salgot.FMtotal];%%Comment this line while sorting data for healthy (patientIDsPerType{4})
+    durationPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration'; %%For healthy, change to NAUE.
+    velMeanPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Avg_Velocity';
+    HPRPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.HPR';
+    velPeakPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak';
+    velPeakPercentPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent';
+    accelerationMaxPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax';
+    straightLineDistancePerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Straight_Distance';
+    nPeaksPerPatientPerParameterPerSegment1(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.nPeaks';
+end
+
+duration1 = [durationPerPatientPerParameterPerSegment1];
+durationAllSegmentTypes1 = [(mean((duration1(:,[SmallSegments])),2)),  (mean((duration1(:,[MediumSegments])),2)), ...
+    mean((duration1(:,[LargeSegments])),2), mean(duration1(:,3:33),2)];  %%Small segments, medium segments, large segments and all segments
+
+velMean1 = [velMeanPerPatientPerParameterPerSegment1];
+velMeanAllSegmentTypes1 = [(mean((velMean1(:,[SmallSegments])),2)),  (mean((velMean1(:,[MediumSegments])),2)), ...
+    mean((velMean1(:,[LargeSegments])),2), mean(velMean1(:,3:33),2)]; 
+
+HPR1 = [HPRPerPatientPerParameterPerSegment1];
+HPRAllSegmentTypes1 = [(mean((HPR1(:,[SmallSegments])),2)),  (mean((HPR1(:,[MediumSegments])),2)), ...
+    mean((HPR1(:,[LargeSegments])),2), mean(HPR1(:,3:33),2)]; 
+
+velPeak1 = [velPeakPerPatientPerParameterPerSegment1];
+velPeakAllSegmentTypes1 = [(mean((velPeak1(:,[SmallSegments])),2)),  (mean((velPeak1(:,[MediumSegments])),2)), ...
+    mean((velPeak1(:,[LargeSegments])),2), mean(velPeak1(:,3:33),2)]; 
+
+velPeakPercent1 = [velPeakPercentPerPatientPerParameterPerSegment1];
+velPeakPercentAllSegmentTypes1 = [(mean((velPeakPercent1(:,[SmallSegments])),2)),  (mean((velPeakPercent1(:,[MediumSegments])),2)), ...
+    mean((velPeakPercent1(:,[LargeSegments])),2), mean(velPeakPercent1(:,3:33),2)]; 
+
+accelerationMax1 = [accelerationMaxPerPatientPerParameterPerSegment1];
+accelerationMaxAllSegmentTypes1 = [(mean((accelerationMax1(:,[SmallSegments])),2)),  (mean((accelerationMax1(:,[MediumSegments])),2)), ...
+    mean((accelerationMax1(:,[LargeSegments])),2), mean(accelerationMax1(:,3:33),2)]; 
+
+nPeaks1 = [nPeaksPerPatientPerParameterPerSegment1];
+nPeaksAllSegmentTypes1 = [(mean((nPeaks1(:,[SmallSegments])),2)),  (mean((nPeaks1(:,[MediumSegments])),2)), ...
+    mean((nPeaks1(:,[LargeSegments])),2), mean(nPeaks1(:,3:33),2)]; 
+
+sortedDataModerate = [patientIDs1, sessionNumbers1, ages1, isMale1,isRightHanded1,height1,weight1,isParalyticArmRight1,isIschemic1,NIHSSArm1,...
+   oxford1, FMscores1, FMCategoryShoulderElbowForearm1, FMCategoryWrist1, FMCategoryHand1, FMCategoryCoordination1, FMCategorySensation1,...
+   FMCategoryPassiveJointMotion1, FMCategoryPain1, ARATtotal1,  durationAllSegmentTypes1, velMeanAllSegmentTypes1, HPRAllSegmentTypes1, velPeakAllSegmentTypes1,... 
+    velPeakPercentAllSegmentTypes1, accelerationMaxAllSegmentTypes1, nPeaksAllSegmentTypes1];
+
+%%PatientIDs, SessionNumbers, meanDurationOfAllSmallSegments,
+%%meanDurationofAllMediumSegments, meanDurationofAllLargeSegments,
+%%meanDurationofAllAllSegments, etc, continuing with meanVelocity , HPR
+%%etc..
+
+%%%%%%%%%%%%%%%%%%For mild
+%%%%%%%%%%%%%%%%%%stroke%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+patientIDs2 = cat(1,patientsMeta.FM.patientIDsPerType{2}); %%Change the patient type here, % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy
+sessionNumbers2 = cat(1,patientsMeta.FM.sessionNumbersPerType{2}); %Change patient type here ALSO, also change affected UE to UE{2} in line 22-28.
+ages2 = [];
+isMale2 = [];
+isRightHanded2 = [];
+height2 = [];
+weight2 = [];
+isParalyticArmRight2 = [];
+isIschemic2 = [];
+NIHSSArm2 = [];
+oxford2 = [];
+FMscores2 = [];
+FMCategoryShoulderElbowForearm2 = [];
+FMCategoryWrist2 = [];
+FMCategoryHand2 = [];
+FMCategoryCoordination2 = [];
+FMCategorySensation2 = [];
+FMCategoryPassiveJointMotion2 = [];
+FMCategoryPain2 = [];
+ARATtotal2 = [];
+durationPerPatientPerParameterPerSegment2 = [];
+velMeanPerPatientPerParameterPerSegment2 = [];
+HPRPerPatientPerParameterPerSegment2 = [];
+nZeroTouchingPerPatientPerParameterPerSegment2 = [];
+velPeakPerPatientPerParameterPerSegment2 = [];
+velPeakPercentPerPatientPerParameterPerSegment2 = [];
+accelerationMaxPerPatientPerParameterPerSegment2 = [];
+straightLineDistancePerPatientPerParameterPerSegment2 = [];
+nPeaksPerPatientPerParameterPerSegment2 = [];
+
+
+for ii = 1:numel(patientIDs2)
+    i = patientIDs2(ii);
+    j = sessionNumbers2(ii);
+    ages2 = [ages2;patients{i}.salgot.ageAtOnset];
+    isMale2 = [isMale2; patients{i}.salgot.sex==1];
+    isRightHanded2 = [isRightHanded2; patients{i}.salgot.handedness==1];
+    isParalyticArmRight2 = [isParalyticArmRight2; patients{i}.salgot.paralyticArm==1];
+    if ~gf.isempty('patients{i}.salgot.length') && isnumeric(patients{i}.salgot.length)
+    height2 = [height2;patients{i}.salgot.length];
+    else
+    height2 = [height2; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.weight') && isnumeric(patients{i}.salgot.weight)
+    weight2 = [weight2;patients{i}.salgot.weight];
+    else
+    weight2 = [weight2; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.CVSA_dicho_new') && isnumeric(patients{i}.salgot.CVSA_dicho_new)
+    isIschemic2 = [isIschemic2; patients{i}.salgot.CVSA_dicho_new==1];
+    else
+    isIschemic2 = [isIschemic2; NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.NIHSSarm_new') && isnumeric(patients{i}.salgot.NIHSSarm_new)
+    NIHSSArm2 = [NIHSSArm2;patients{i}.salgot.NIHSSarm_new]; 
+    else
+    NIHSSArm2 = [NIHSSArm2;NaN];
+    end
+    if ~gf.isempty('patients{i}.salgot.OXFORD_new') && isnumeric(patients{i}.salgot.OXFORD_new)
+    oxford2 = [oxford2;patients{i}.salgot.OXFORD_new];
+    else
+    oxford2 = [oxford2;NaN];
+    end
+    FMscores2 = [FMscores2;patients{i}.sessions{j}.salgot.FMtotal];
+    FMCategoryShoulderElbowForearm2 = [FMCategoryShoulderElbowForearm2;patients{i}.sessions{j}.salgot.FMovre];
+    FMCategoryWrist2 = [FMCategoryWrist2;patients{i}.sessions{j}.salgot.FMhand];
+    FMCategoryHand2 = [FMCategoryHand2;patients{i}.sessions{j}.salgot.FMfingrar];
+    FMCategoryCoordination2 = [FMCategoryCoordination2;patients{i}.sessions{j}.salgot.FMkoord];
+    FMCategorySensation2 = [FMCategorySensation2;patients{i}.sessions{j}.salgot.sens];
+    FMCategoryPassiveJointMotion2 = [FMCategoryPassiveJointMotion2;patients{i}.sessions{j}.salgot.passivROM];
+    FMCategoryPain2 = [FMCategoryPain2;patients{i}.sessions{j}.salgot.smarta];
+    ARATtotal2 = [ARATtotal2;patients{i}.sessions{j}.salgot.ARATtotal];
+    durationPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration'; %%For healthy, change to NAUE.
+    velMeanPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Avg_Velocity';
+    HPRPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.HPR';
+    velPeakPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak';
+    velPeakPercentPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent';
+    accelerationMaxPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.accelerationMax';
+    straightLineDistancePerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.Straight_Distance';
+    nPeaksPerPatientPerParameterPerSegment2(ii,:) = patients{i}.sessions{j}.UE{1}.pointtestPhases.nPeaks';
+end
+
+duration2 = [durationPerPatientPerParameterPerSegment2];
+durationAllSegmentTypes2 = [(mean((duration2(:,[SmallSegments])),2)),  (mean((duration2(:,[MediumSegments])),2)), ...
+    mean((duration2(:,[LargeSegments])),2), mean(duration2(:,3:33),2)];  %%Small segments, medium segments, large segments and all segments
+
+velMean2 = [velMeanPerPatientPerParameterPerSegment2];
+velMeanAllSegmentTypes2 = [(mean((velMean2(:,[SmallSegments])),2)),  (mean((velMean2(:,[MediumSegments])),2)), ...
+    mean((velMean2(:,[LargeSegments])),2), mean(velMean2(:,3:33),2)]; 
+
+HPR2 = [HPRPerPatientPerParameterPerSegment2];
+HPRAllSegmentTypes2 = [(mean((HPR2(:,[SmallSegments])),2)),  (mean((HPR2(:,[MediumSegments])),2)), ...
+    mean((HPR2(:,[LargeSegments])),2), mean(HPR2(:,3:33),2)]; 
+
+velPeak2 = [velPeakPerPatientPerParameterPerSegment2];
+velPeakAllSegmentTypes2 = [(mean((velPeak2(:,[SmallSegments])),2)),  (mean((velPeak2(:,[MediumSegments])),2)), ...
+    mean((velPeak2(:,[LargeSegments])),2), mean(velPeak2(:,3:33),2)]; 
+
+velPeakPercent2 = [velPeakPercentPerPatientPerParameterPerSegment2];
+velPeakPercentAllSegmentTypes2 = [(mean((velPeakPercent2(:,[SmallSegments])),2)),  (mean((velPeakPercent2(:,[MediumSegments])),2)), ...
+    mean((velPeakPercent2(:,[LargeSegments])),2), mean(velPeakPercent2(:,3:33),2)]; 
+
+accelerationMax2 = [accelerationMaxPerPatientPerParameterPerSegment2];
+accelerationMaxAllSegmentTypes2 = [(mean((accelerationMax2(:,[SmallSegments])),2)),  (mean((accelerationMax2(:,[MediumSegments])),2)), ...
+    mean((accelerationMax2(:,[LargeSegments])),2), mean(accelerationMax2(:,3:33),2)]; 
+
+nPeaks2 = [nPeaksPerPatientPerParameterPerSegment2];
+nPeaksAllSegmentTypes2 = [(mean((nPeaks2(:,[SmallSegments])),2)),  (mean((nPeaks2(:,[MediumSegments])),2)), ...
+    mean((nPeaks2(:,[LargeSegments])),2), mean(nPeaks2(:,3:33),2)]; 
+
+
+
+sortedDataMild = [patientIDs2, sessionNumbers2, ages2, isMale2,isRightHanded2,height2,weight2,isParalyticArmRight2,isIschemic2,NIHSSArm2,...
+   oxford2, FMscores2, FMCategoryShoulderElbowForearm2, FMCategoryWrist2, FMCategoryHand2, FMCategoryCoordination2, FMCategorySensation2,...
+   FMCategoryPassiveJointMotion2, FMCategoryPain2, ARATtotal2,  durationAllSegmentTypes2, velMeanAllSegmentTypes2, HPRAllSegmentTypes2, velPeakAllSegmentTypes2,... 
+    velPeakPercentAllSegmentTypes2, accelerationMaxAllSegmentTypes2, nPeaksAllSegmentTypes2];
+
+%%PatientIDs, SessionNumbers, meanDurationOfAllSmallSegments,
+%%meanDurationofAllMediumSegments, meanDurationofAllLargeSegments,
+%%meanDurationofAllAllSegments, etc, continuing with meanVelocity , HPR
+%%etc..
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%For healthy individuals, Non affected UE%%%%%%%%%%%%%%%%%%%%%%%%%
+
+patientIDs = cat(1,patientsMeta.FM.patientIDsPerType{4}); % patientType = 1 if moderate, 2 if mild,  3 if moderate and mild, 4 for healthy NAUE
+sessionNumbers = cat(1,patientsMeta.FM.sessionNumbersPerType{4}); %Change patient type here ALSO, also change affected UE to UE{2} in line 22-28.
+ages = [];
+isMale = [];
+isRightHanded = [];
+height = [];
+weight = [];
+isParalyticArmRight = NaN((numel(patientIDs)),1);
+isIschemic = NaN((numel(patientIDs)),1);
+NIHSSArm = NaN((numel(patientIDs)),1);
+oxford = NaN((numel(patientIDs)),1);
+FMscores = NaN((numel(patientIDs)),1);
+FMCategoryShoulderElbowForearm = NaN((numel(patientIDs)),1);
+FMCategoryWrist = NaN((numel(patientIDs)),1);
+FMCategoryHand = NaN((numel(patientIDs)),1);
+FMCategoryCoordination = NaN((numel(patientIDs)),1);
+FMCategorySensation = NaN((numel(patientIDs)),1);
+FMCategoryPassiveJointMotion = NaN((numel(patientIDs)),1);
+FMCategoryPain = NaN((numel(patientIDs)),1);
+ARATtotal = NaN((numel(patientIDs)),1);
+durationPerPatientPerParameterPerSegment = [];
+velMeanPerPatientPerParameterPerSegment = [];
+HPRPerPatientPerParameterPerSegment = [];
+velPeakPerPatientPerParameterPerSegment = [];
+velPeakPercentPerPatientPerParameterPerSegment = [];
+accelerationMaxPerPatientPerParameterPerSegment = [];
+straightLineDistancePerPatientPerParameterPerSegment = [];
+nPeaksPerPatientPerParameterPerSegment = [];
+
+
+for ii = 1:numel(patientIDs)
+    i = patientIDs(ii);
+    j = sessionNumbers(ii);
+    ages = [ages;patients{i}.salgot.ageAtOnset];
+    isMale = [isMale; patients{i}.salgot.sex==1];
+    isRightHanded = [isRightHanded; patients{i}.salgot.handedness==1];
+    height = [height;patients{i}.salgot.length];
+    weight = [weight;patients{i}.salgot.weight];
+    %%FMscores = [FMscores;patients{i}.sessions{j}.salgot.FMtotal];%%Comment this line while sorting data for healthy (patientIDsPerType{4})
+    durationPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.Duration'; %%For healthy, change to NAUE.
+    velMeanPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.Avg_Velocity';
+    HPRPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.HPR';
+    velPeakPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeak';
+    velPeakPercentPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.velPeakPercent';
+    accelerationMaxPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.accelerationMax';
+    straightLineDistancePerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.Straight_Distance';
+    nPeaksPerPatientPerParameterPerSegment(ii,:) = patients{i}.sessions{j}.UE{2}.pointtestPhases.nPeaks;
+end
+
+duration = durationPerPatientPerParameterPerSegment;
+durationAllSegmentTypes = [(mean((duration(:,[SmallSegments])),2)),  (mean((duration(:,[MediumSegments])),2)), ...
+    mean((duration(:,[LargeSegments])),2), mean(duration(:,3:33),2)];  %%Small segments, medium segments, large segments and all segments
+
+velMean = velMeanPerPatientPerParameterPerSegment;
+velMeanAllSegmentTypes = [(mean((velMean(:,[SmallSegments])),2)),  (mean((velMean(:,[MediumSegments])),2)), ...
+    mean((velMean(:,[LargeSegments])),2), mean(velMean(:,3:33),2)]; 
+
+HPR = HPRPerPatientPerParameterPerSegment;
+HPRAllSegmentTypes = [(mean((HPR(:,[SmallSegments])),2)),  (mean((HPR(:,[MediumSegments])),2)), ...
+    mean((HPR(:,[LargeSegments])),2), mean(HPR(:,3:33),2)]; 
+
+velPeak = velPeakPerPatientPerParameterPerSegment;
+velPeakAllSegmentTypes = [(mean((velPeak(:,[SmallSegments])),2)),  (mean((velPeak(:,[MediumSegments])),2)), ...
+    mean((velPeak(:,[LargeSegments])),2), mean(velPeak(:,3:33),2)]; 
+
+velPeakPercent = velPeakPercentPerPatientPerParameterPerSegment;
+velPeakPercentAllSegmentTypes = [(mean((velPeakPercent(:,[SmallSegments])),2)),  (mean((velPeakPercent(:,[MediumSegments])),2)), ...
+    mean((velPeakPercent(:,[LargeSegments])),2), mean(velPeakPercent(:,3:33),2)]; 
+
+accelerationMax = accelerationMaxPerPatientPerParameterPerSegment;
+accelerationMaxAllSegmentTypes = [(mean((accelerationMax(:,[SmallSegments])),2)),  (mean((accelerationMax(:,[MediumSegments])),2)), ...
+    mean((accelerationMax(:,[LargeSegments])),2), mean(accelerationMax(:,3:33),2)]; 
+
+nPeaks = nPeaksPerPatientPerParameterPerSegment;
+nPeaksAllSegmentTypes = [(mean((nPeaks(:,[SmallSegments])),2)),  (mean((nPeaks(:,[MediumSegments])),2)), ...
+    mean((nPeaks(:,[LargeSegments])),2), mean(nPeaks(:,3:33),2)]; 
+
+sortedDataHealthy = [patientIDs, sessionNumbers, ages, isMale,isRightHanded,height,weight,isParalyticArmRight,isIschemic,NIHSSArm,...
+   oxford, FMscores, FMCategoryShoulderElbowForearm, FMCategoryWrist, FMCategoryHand, FMCategoryCoordination, FMCategorySensation,...
+   FMCategoryPassiveJointMotion, FMCategoryPain, ARATtotal,  durationAllSegmentTypes, velMeanAllSegmentTypes, HPRAllSegmentTypes, velPeakAllSegmentTypes,... 
+    velPeakPercentAllSegmentTypes, accelerationMaxAllSegmentTypes, nPeaksAllSegmentTypes];
+
+%%PatientIDs, SessionNumbers, meanDurationOfAllSmallSegments,
+%%meanDurationofAllMediumSegments, meanDurationofAllLargeSegments,
+%%meanDurationofAllAllSegments, etc, continuing with meanVelocity , HPR
+%%etc..
+sortedDataWhole = [sortedDataModerate; sortedDataMild];
+allSortedData = [sortedDataWhole; sortedDataHealthy]; %%moderate and mild are affected side. For healthy, non-dominant side is taken. Results are in the order : moderate, mild, healthy.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Analyse the data%%%%%%%%%%%%%%%%%%%
+
+
+
+%%Determining the grip of performing VR
+
+ VrGripRight = [];
+ VrGripLeft = [];
+ 
+patientID = (sortedDataWhole(:,1))';
+sessionID = (sortedDataWhole(:,2))';
+
+
+ 
+for ii = 1:numel(patientID)
+    i = patientID(ii);
+    j = sessionID(ii);
+            if (~gf.isempty('patients{i}.sessions{j}.salgot.VrGripRight'))
+ VrGripRight = [VrGripRight; patients{i}.sessions{j}.salgot.VrGripRight];
+            end
+            if  (~gf.isempty('patients{i}.sessions{j}.salgot.VrGripLeft'))
+    VrGripLeft = [VrGripLeft; patients{i}.sessions{j}.salgot.VrGripLeft]; 
+            end
+end
+
+
+VrGripParalytic = [];
+for k = 1:numel(patientID)
+    if (sortedDataWhole(k,8)) == 1
+        VrGripParalytic(k) = VrGripRight(k);
+    elseif (sortedDataWhole(k,8)) == 0
+        VrGripParalytic(k) = VrGripLeft(k);
+    end
+end
+
+testVrGripParalytic = [sortedDataWhole(:,8),VrGripRight,VrGripLeft,VrGripParalytic'];
