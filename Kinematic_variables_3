@@ -1,0 +1,123 @@
+%%%%%%%%%%%%%%%%%%%%%%%Aim: Calculation of kinematic variables for Paper 3%%%%%%%%%%%%%%%%%%%%%
+
+function modifyPatients_Paper3()
+
+load('Results\20180821_patients.mat');
+%DoNameChanges;
+
+nSessions = 9;
+nColumnsInASession = 11;
+finalOutput = cell(1,1+nSessions*nColumnsInASession);  finalOutput{1} = {'patientID'};
+headersInASession = {'Movement time','Mean velocity', 'Peak velocity','Time to peak velocity','Number of peaks','ABILHAND Score','ABILHAND MissingR','ABILHAND PMeasure','ABILHAND SDError','FMA-UE score','ARAT score'};
+
+for j = 1:nSessions
+    for m = 1:nColumnsInASession
+        switch(j)
+            case 1 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['D3 ',headersInASession{m}];
+            case 2 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['D10 ',headersInASession{m}];
+            case 3 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['V3 ',headersInASession{m}];
+            case 4 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['V4 ',headersInASession{m}];
+            case 5 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['V6 ',headersInASession{m}];
+            case 6 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['M3 ',headersInASession{m}];
+            case 7 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['M6 ',headersInASession{m}];
+            case 8 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['M12 ',headersInASession{m}];
+            case 9 
+                finalOutput{nColumnsInASession*(j-1)+m+1} = ['h ',headersInASession{m}];
+            otherwise
+                error('Error here1265 ...');
+        end
+    end
+    
+end
+
+for i = 1:numel(patients)
+    tempCellPerColumn = num2cell(nan(1,nSessions*nColumnsInASession+1));          %% 12 is the total number of columns
+    tempCellPerColumn{1} = i;
+    for j = 1:nSessions
+    if(~gf.isempty('patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration'))
+        tempCellPerColumn{nColumnsInASession*(j-1)+2} = gf.mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.Duration);
+        tempCellPerColumn{nColumnsInASession*(j-1)+3} = gf.mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.velMean);
+        tempCellPerColumn{nColumnsInASession*(j-1)+4} = gf.mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeak);
+        tempCellPerColumn{nColumnsInASession*(j-1)+5} = gf.mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.velPeakPercent);
+        tempCellPerColumn{nColumnsInASession*(j-1)+6} = gf.mean(patients{i}.sessions{j}.UE{1}.pointtestPhases.nPeaks);
+        if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilPScore'))
+            tempCellPerColumn{nColumnsInASession*(j-1)+7} = gf.mean(patients{i}.sessions{j}.salgot.AbilPScore);
+            tempCellPerColumn{nColumnsInASession*(j-1)+8} = gf.mean(patients{i}.sessions{j}.salgot.AbilMissingR);
+            tempCellPerColumn{nColumnsInASession*(j-1)+9} = gf.mean(patients{i}.sessions{j}.salgot.AbilPMeasure);
+            if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilSDError'))
+                tempCellPerColumn{nColumnsInASession*(j-1)+10} = gf.mean(patients{i}.sessions{j}.salgot.AbilSDError);
+            else
+                tempCellPerColumn{nColumnsInASession*(j-1)+10} = NaN;
+            end
+            tempCellPerColumn{nColumnsInASession*(j-1)+11} = gf.mean(patients{i}.sessions{j}.salgot.FMtotal);
+            tempCellPerColumn{nColumnsInASession*(j-1)+12} = gf.mean(patients{i}.sessions{j}.salgot.ARATtotal);
+        end
+    end
+    end
+    if(~all(isnan(cell2mat(tempCellPerColumn(2:end)))))
+        finalOutput = [finalOutput; tempCellPerColumn];
+    end
+end
+
+xlswrite('results_paper3.xlsx',finalOutput);
+
+
+
+function DoNameChanges()
+
+for i = 1:numel(patients)
+    for j = 1:9
+        
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbiPScore'))
+  patients{i}.sessions{j}.salgot.AbilPScore = patients{i}.sessions{j}.salgot.AbiPScore;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot, 'AbiPScore');
+    end
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilPScore') && ~isnumeric(patients{i}.sessions{j}.salgot.AbilPScore)) patients{i}.sessions{j}.salgot.AbilPScore = NaN; end
+    
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbiMissingR'))
+  patients{i}.sessions{j}.salgot.AbilMissingR = patients{i}.sessions{j}.salgot.AbiMissingR;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot, 'AbiMissingR');
+    end
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilMissingR') && ~isnumeric(patients{i}.sessions{j}.salgot.AbilMissingR)) patients{i}.sessions{j}.salgot.AbilMissingR = NaN; end
+
+  
+      if(~gf.isempty('patients{i}.sessions{j}.salgot.AbiPMeasure')),
+  patients{i}.sessions{j}.salgot.AbilPMeasure = patients{i}.sessions{j}.salgot.AbiPMeasure;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot, 'AbiPMeasure');
+      end
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilPMeasure') && ~isnumeric(patients{i}.sessions{j}.salgot.AbilPMeasure)) patients{i}.sessions{j}.salgot.AbilPMeasure = NaN; end
+    
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbiSDError')),
+  patients{i}.sessions{j}.salgot.AbilSDError = patients{i}.sessions{j}.salgot.AbiSDError;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot, 'AbiSDError');
+    end  
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilSDError') && ~isnumeric(patients{i}.sessions{j}.salgot.AbilSDError)) patients{i}.sessions{j}.salgot.AbilSDError = NaN; end
+
+    %%Spelling mistake, measure
+  if(~gf.isempty('patients{i}.sessions{j}.salgot.AbiPMesasure')),
+  patients{i}.sessions{j}.salgot.AbilPMeasure = patients{i}.sessions{j}.salgot.AbiPMesasure;
+  patients{i}.sessions{j}.salgot = rmfield(patients{i}.sessions{j}.salgot, 'AbiPMesasure');
+  end  
+    if(~gf.isempty('patients{i}.sessions{j}.salgot.AbilPMeasure') && ~isnumeric(patients{i}.sessions{j}.salgot.AbilPMeasure)) patients{i}.sessions{j}.salgot.AbilPMeasure = NaN; end
+      
+end
+end
+
+save('20180821_patients.mat','patients');
+
+end
+
+end
+        
+
+        
+
+
